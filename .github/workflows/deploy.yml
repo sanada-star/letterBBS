@@ -24,7 +24,7 @@ jobs:
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
         server-dir: ${{ secrets.FTP_TARGET }}
-        local-dir: ./patio/patio/
+        local-dir: ./patio/patio
         port: 21
         protocol: ftp
         exclude: |
