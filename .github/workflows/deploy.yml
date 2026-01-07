@@ -13,6 +13,10 @@ jobs:
     - name: 🚚 Get latest code
       uses: actions/checkout@v4
     
+    - name: 🔍 List files for debug
+      run: |
+        ls -R ./patio/patio/lib
+    
     - name: 📂 Sync files
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
@@ -27,5 +31,5 @@ jobs:
           **/.git*
           **/.git*/**
           **/node_modules/**
-          **/data/**
-          **/upl/**
+          data/**
+          upl/**
