@@ -1,111 +1,222 @@
+@import url('https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=Zen+Maru+Gothic:wght@400;700&display=swap');
+
+:root {
+	--color-background: #fff5f5;
+	--color-primary: #ff4757;
+	/* Deep Pink/Red */
+	--color-secondary: #2ed573;
+	/* Bright Green */
+	--color-accent: #ffa502;
+	/* Bright Orange */
+	--color-card: #ffffff;
+	--color-text: #2f3542;
+	--color-border: #2f3542;
+	--shadow-pop: 5px 5px 0px #2f3542;
+
+	--font-heading: 'Mochiy Pop One', sans-serif;
+	--font-body: 'Zen Maru Gothic', sans-serif;
+}
+
 body {
 	padding: 0;
 	margin: 0;
-	background: #f3f3f3;
-	font: 90% 'Hiragino Kaku Gothic ProN','ヒラギノ角ゴ ProN W3',Meiryo,メイリオ,Osaka,'MS PGothic',arial,helvetica,sans-serif;
+	background: var(--color-background);
+	color: var(--color-text);
+	font-family: var(--font-body);
+	line-height: 1.6;
 }
-#list {
-	margin:1em;
+
+#head {
+	background: var(--color-primary);
+	color: #fff;
+	padding: 1rem;
+	font-family: var(--font-heading);
+	font-size: 1.2rem;
+	text-align: center;
+	box-shadow: 0 4px 0 var(--color-border);
+	margin-bottom: 2rem;
 }
+
+#body {
+	max-width: 900px;
+	margin: 0 auto;
+	padding: 0 1rem 3rem;
+}
+
+#ttl {
+	font-family: var(--font-heading);
+	font-size: 1.5rem;
+	color: var(--color-primary);
+	margin-bottom: 1.5rem;
+	padding-bottom: 0.5rem;
+	border-bottom: 3px solid var(--color-accent);
+}
+
+/* Forms & Tables */
 .form-tbl {
-	border-collapse: collapse;
-	margin: 1em;
+	width: 100%;
+	border-collapse: separate;
+	border-spacing: 0;
+	margin: 1.5rem 0;
+	background: var(--color-card);
+	border: 2px solid var(--color-border);
+	border-radius: 12px;
+	overflow: hidden;
+	box-shadow: var(--shadow-pop);
 }
-.form-tbl th, .form-tbl td {
-	border: 1px solid #333;
-	padding: 10px;
-}
-.form-tbl th {
-	background: #ccc;
-}
+
+.form-tbl th,
 .form-tbl td {
-	background: #fff;
+	padding: 1rem;
+	border-bottom: 1px solid #ddd;
 }
-.w-15 {
-	width: 15em;
+
+.form-tbl th {
+	background: #f8f8f8;
+	color: var(--color-primary);
+	font-weight: bold;
+	text-align: left;
+	width: 30%;
 }
-.ta-c {
-	text-align:center;
+
+.form-tbl tr:last-child th,
+.form-tbl tr:last-child td {
+	border-bottom: none;
 }
-.ta-r {
-	text-align:right;
+
+#list th {
+	background: var(--color-primary);
+	color: #fff;
+	text-align: center;
 }
+
+/* Buttons */
+.ope-btn {
+	margin: 1.5rem 0;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.btn,
+.btn-secondary,
+input[type="submit"],
+input[type="button"] {
+	padding: 0.6rem 1.5rem;
+	border-radius: 99px;
+	border: 2px solid var(--color-border);
+	background: var(--color-secondary);
+	color: #fff;
+	font-weight: bold;
+	cursor: pointer;
+	box-shadow: 3px 3px 0px var(--color-border);
+	transition: 0.2s;
+	font-family: var(--font-heading);
+}
+
+.btn:hover,
+input[type="submit"]:hover {
+	transform: translate(-2px, -2px);
+	box-shadow: 5px 5px 0px var(--color-border);
+	background: #26af61;
+}
+
 .back-btn {
-	margin: 3px;
+	text-align: left;
+	margin-bottom: 1rem;
+}
+
+/* Form Elements */
+input[type="text"],
+input[type="password"],
+textarea,
+select {
+	width: 100%;
+	padding: 0.6rem;
+	border: 2px solid #ddd;
+	border-radius: 8px;
+	font-family: var(--font-body);
+}
+
+input[type="text"]:focus {
+	border-color: var(--color-secondary);
+	outline: none;
+}
+
+/* Utilities */
+.ta-c {
+	text-align: center;
+}
+
+.ta-r {
 	text-align: right;
 }
-#ttl {
-	margin:1em;
-	font-weight:bold;
-	color:#005d86;
-	border-bottom:1px dotted #005d86;
-	padding:5px 0;
-}
-.ope-btn {
-	margin:1em;
-}
-#head {
-	background:#007caf;
-	color:#fff;
-	padding:3px;
-	font-size:90%;
-}
-#body {
-	padding: 1em;
-}
-img.icon {
-	vertical-align: middle;
-}
-.btn {
-	width:100px;
-	height:30px;
-}
-#err {
-	width:400px;
-	padding:1.2em;
-	margin:3em auto;
-	background:#fff;
-	border:1px solid red;
-	text-align:center;
-	border-radius:6px;
-}
-#err b {
-	color:#dd0000;
-	font-size:110%;
-}
-#msg {
-	width:400px;
-	padding:1.2em;
-	margin:3em auto;
-	background:#fff;
-	border:1px solid green;
-	text-align:center;
-	border-radius:6px;
-}
-#msg b {
-	color:green;
-	font-size:110%;
-}
-/* for login */
-#login {
-	width: 400px;
-	margin: 3em auto;
+
+.ta-l {
 	text-align: left;
-	padding: 1em 2em;
-	border-radius:6px;
 }
+
+.w-15 {
+	width: 15rem;
+}
+
+/* Errors & Messages */
+#err,
+#msg-box {
+	background: var(--color-card);
+	padding: 2rem;
+	border: 3px solid var(--color-primary);
+	border-radius: 12px;
+	box-shadow: var(--shadow-pop);
+	margin: 3rem auto;
+	max-width: 500px;
+	text-align: center;
+}
+
+#err b {
+	color: var(--color-primary);
+	font-size: 1.2rem;
+}
+
+/* Login Box */
+#login {
+	background: var(--color-card);
+	padding: 2rem;
+	border: 3px solid var(--color-border);
+	border-radius: 15px;
+	box-shadow: var(--shadow-pop);
+	max-width: 400px;
+	margin: 5rem auto;
+}
+
 #login legend {
-	padding: 5px;
-	font-weight: bold;
+	font-family: var(--font-heading);
+	font-size: 1.2rem;
+	background: var(--color-accent);
+	color: #fff;
+	padding: 5px 15px;
+	border-radius: 8px;
+	border: 2px solid var(--color-border);
 }
-#login input[type="text"], #login input[type="password"] {
-	width: 300px;
-	padding: 5px;
-}
-#login input[type="submit"] {
-	width: 100px;
-	height: 30px;
-}
+
 #login p {
-	margin: 2em 0;
+	margin: 1.5rem 0;
+}
+
+#login input[type="text"],
+#login input[type="password"] {
+	margin-top: 0.5rem;
+}
+
+@media (max-width: 600px) {
+
+	.form-tbl th,
+	.form-tbl td {
+		padding: 0.5rem;
+		font-size: 0.9rem;
+	}
+
+	.w-15 {
+		width: auto;
+	}
 }

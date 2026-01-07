@@ -135,8 +135,8 @@ sub enter_form {
 	password<br>
 	<input type="password" name="pw" class="auth">
 </p>
-<div class="ta-r">
-	<input type="submit" name="login" value="Log in">
+<div class="ta-c">
+	<input type="submit" name="login" value="Log in" class="btn">
 </div>
 </fieldset>
 </form>
@@ -244,7 +244,7 @@ sub pass_mgr {
 <div class="back-btn">
 <form action="$cf{admin_cgi}" method="post">
 <input type="hidden" name="sid" value="$in{sid}">
-<input type="submit" value="&lt; メニュー">
+<input type="submit" value="&lt; メニュー" class="btn">
 </form>
 </div>
 <div class="ttl">■ 管理パスワード管理</div>
@@ -306,7 +306,7 @@ sub pwd_msg {
 		<form action="$cf{admin_cgi}" method="post">
 		<input type="hidden" name="pass_mgr" value="1">
 		<input type="hidden" name="sid" value="$in{sid}">
-		<input type="submit" value="最初の画面へ戻る">
+		<input type="submit" value="最初の画面へ戻る" class="btn">
 		</form>
 	</p>
 </div>

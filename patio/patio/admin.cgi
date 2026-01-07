@@ -143,7 +143,7 @@ EOM
 	
 	print <<EOM;
 </select>
-<input type="submit" value="送信する">
+<input type="submit" value="送信する" class="btn">
 </div>
 <table class="form-tbl" id="list">
 <tr>
@@ -563,7 +563,7 @@ sub article {
 <option value="edit">修正
 <option value="dele">削除
 </select>
-<input type="submit" value="送信する">
+<input type="submit" value="送信する" class="btn">
 </div>
 <table class="form-tbl" id="list">
 <tr>
@@ -1082,9 +1082,9 @@ sub cgi_err {
 	print <<EOM;
 <div id="body">
 <div id="err">
-<b>エラー発生</b>
+<b class="primary-text">エラー発生</b>
 <p>$err</p>
-<p><input type="button" value="前画面に戻る" onclick="history.back()"></p>
+<p><input type="button" value="前画面に戻る" onclick="history.back()" class="btn"></p>
 </div>
 </div>
 </body>
