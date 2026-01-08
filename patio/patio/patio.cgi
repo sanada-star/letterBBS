@@ -32,6 +32,7 @@ if ($in{mode} eq 'form') { form_page(); }
 if ($in{mode} eq 'find') { find_page(); }
 if ($in{mode} eq 'note') { note_page(); }
 if ($in{mode} eq 'past') { past_page(); }
+if ($in{mode} eq 'manual') { manual_page(); }
 if ($in{mode} eq 'find_owner') { find_owner(); }
 bbs_list();
 
@@ -924,5 +925,24 @@ sub find_owner {
 	} else {
 		print "not_found";
 	}
+	exit;
+}
+
+#-----------------------------------------------------------
+#  マニュアルページ表示
+#-----------------------------------------------------------
+sub manual_page {
+	# テンプレート読込
+	open(IN,"$cf{tmpldir}/manual.html") or error("open err: manual.html");
+	my $tmpl = join('',<IN>);
+	close(IN);
+	
+	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/style.css|g;
+	$tmpl =~ s/!([a-z]+_cgi)!/$cf{$1}/g;
+	$tmpl =~ s/!bbs_title!/$cf{bbs_title}/g;
+	$tmpl =~ s/!tmpldir!/$cf{tmpldir}/g;
+	
+	print "Content-type: text/html; charset=utf-8\n\n";
+	print $tmpl;
 	exit;
 }
