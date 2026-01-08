@@ -262,21 +262,66 @@ a:hover {
 
 .submit-btn {
 	background: var(--color-secondary);
-	color: #fff;
-	padding: 1rem 3.5rem;
+	color: #fff !important;
+	padding: 1.2rem 4rem;
 	font-family: var(--font-heading);
-	font-size: 1.25rem;
+	font-size: 1.3rem;
 	border: 3px solid var(--color-border);
 	border-radius: 100px;
 	cursor: pointer;
 	box-shadow: var(--shadow-pop);
 	transition: 0.2s;
+	appearance: none;
+	-webkit-appearance: none;
+	display: inline-block;
+	line-height: 1;
 }
 
 .submit-btn:hover {
 	transform: translate(-3px, -3px);
 	box-shadow: 8px 8px 0px var(--color-border);
 	background: #26af61;
+}
+
+/* Modern File Input */
+.file-input-wrapper {
+	position: relative;
+	margin-bottom: 10px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.file-input-wrapper input[type="file"] {
+	font-size: 0.9rem;
+	padding: 10px;
+	border: 2px dashed var(--color-border);
+	border-radius: 10px;
+	background: #fff;
+	width: 100%;
+	cursor: pointer;
+	transition: 0.2s;
+}
+
+.file-input-wrapper input[type="file"]:hover {
+	background: #fdfaf0;
+	border-color: var(--color-primary);
+}
+
+.file-input-wrapper input[type="file"]::file-selector-button {
+	background: var(--color-primary);
+	color: #fff;
+	padding: 8px 16px;
+	border: 2px solid var(--color-border);
+	border-radius: 6px;
+	font-family: var(--font-heading);
+	cursor: pointer;
+	margin-right: 15px;
+	transition: 0.2s;
+}
+
+.file-input-wrapper input[type="file"]::file-selector-button:hover {
+	background: #e55e5e;
 }
 
 /* Posts & Articles */
