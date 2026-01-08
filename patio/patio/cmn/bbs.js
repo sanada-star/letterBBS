@@ -241,3 +241,100 @@ document.addEventListener('DOMContentLoaded', function () {
         refreshDeskPanel();
     }
 });
+
+// ========================================
+// フェーズ2：一括自動送信機能
+// ========================================
+
+// 一括送信
+async function sendAllDeskItems() {
+    const deskItems = JSON.parse(localStorage.getItem(DESK_STORAGE_KEY) || '[]');
+
+    if (deskItems.length === 0) {
+        alert('送信するお返事がありません。');
+        return;
+    }
+
+    if (!confirm(`${deskItems.length}件のお返事を一括送信しますか？`)) {
+        return;
+    }
+
+    const bbs_cgi = './patio.cgi';
+    const regist_cgi = './regist.cgi';
+    let successCount = 0;
+    let failedItems = [];
+
+    // プログレス表示用
+    const panel = document.getElementById('correspondeskPanel');
+    const originalContent = panel.querySelector('.desk-content').innerHTML;
+    panel.querySelector('.desk-content').innerHTML = '<div class="desk-progress">送信中...</div>';
+
+    for (let i = 0; i < deskItems.length; i++) {
+        const item = deskItems[i];
+        panel.querySelector('.desk-progress').textContent = `送信中... (${i + 1}/${deskItems.length}) ${item.targetName}さんへ`;
+
+        try {
+            // 1. スレッドIDを検索
+            const findResponse = await fetch(`${bbs_cgi}?mode=find_owner&name=${encodeURIComponent(item.targetName)}`);
+            const findData = await findResponse.text();
+
+            if (!findData.startsWith('target_id:')) {
+                failedItems.push({ name: item.targetName, reason: '私書箱が見つかりませんでした' });
+                continue;
+            }
+
+            const threadId = findData.split(':')[1];
+
+            // 2. regist.cgiへPOST
+            const formData = new FormData();
+            formData.append('mode', 'regist');
+            formData.append('read', threadId);
+            formData.append('sub', item.subject);
+            formData.append('name', item.name);
+            formData.append('comment', item.message);
+
+            const postResponse = await fetch(regist_cgi, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (postResponse.ok) {
+                successCount++;
+            } else {
+                failedItems.push({ name: item.targetName, reason: '投稿に失敗しました' });
+            }
+
+            // サーバー負荷軽減のため少し待機
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+        } catch (error) {
+            failedItems.push({ name: item.targetName, reason: 'エラー: ' + error.message });
+        }
+    }
+
+    // 結果表示
+    let resultMessage = `送信完了！\n成功: ${successCount}件`;
+    if (failedItems.length > 0) {
+        resultMessage += `\n失敗: ${failedItems.length}件\n\n`;
+        resultMessage += failedItems.map(f => `・${f.name}: ${f.reason}`).join('\n');
+    }
+
+    alert(resultMessage);
+
+    // 成功したものだけデスクから削除
+    if (successCount > 0) {
+        let remainingItems = [];
+        for (let i = 0; i < deskItems.length; i++) {
+            const item = deskItems[i];
+            const failed = failedItems.find(f => f.name === item.targetName);
+            if (failed) {
+                remainingItems.push(item);
+            }
+        }
+        localStorage.setItem(DESK_STORAGE_KEY, JSON.stringify(remainingItems));
+    }
+
+    // パネルを更新
+    panel.querySelector('.desk-content').innerHTML = originalContent;
+    refreshDeskPanel();
+}
