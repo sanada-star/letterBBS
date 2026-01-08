@@ -19,12 +19,15 @@
 
 	<main class="main">
 
-		<div class="bbs-navi">
-			<a href="!bbs_cgi!">↩ 一覧に戻る</a>
-			<!-- past -->
-			&gt; <a href="!bbs_cgi!?mode=past">過去ログ</a>
-			<!-- /past -->
-			&gt; 記事閲覧
+		<div class="bbs-navi" style="display:flex; justify-content:space-between; align-items:center;">
+			<div>
+				<a href="!bbs_cgi!">↩ 一覧に戻る</a>
+				<!-- past -->
+				&gt; <a href="!bbs_cgi!?mode=past">過去ログ</a>
+				<!-- /past -->
+				&gt; 記事閲覧
+			</div>
+			<a href="#resform" class="jump-btn">▼ 最下部（投稿欄）へ移動</a>
 		</div>
 
 		<!-- Main Thread Post -->
@@ -83,8 +86,8 @@
 
 		<!-- Reply Form -->
 		<!-- resform -->
-		<div class="form-container mt-3">
-			<h3 class="topic-header mb-1" style="text-align:left; font-size:1.2rem;">✉ お返事を書く</h3>
+		<div id="resform" class="form-container mt-3">
+			<h3 class="topic-header mb-1" style="text-align:left; font-size:1.2rem;">✉ 書き込み画面</h3>
 
 			<form action="!regist_cgi!" method="post" name="bbsform" enctype="multipart/form-data">
 				<input type="hidden" name="mode" value="regist">
@@ -130,7 +133,7 @@
 				</div>
 
 				<div class="submit-btn-area">
-					<input type="submit" value="お返事を送る" class="submit-btn">
+					<input type="submit" value="送信" class="submit-btn">
 				</div>
 			</form>
 		</div>
