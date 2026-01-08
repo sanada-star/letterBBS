@@ -367,6 +367,17 @@ a:hover {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
+	margin-top: 0.5rem;
+}
+
+.res-sub {
+	font-family: var(--font-heading);
+	font-size: 1.1rem;
+	color: var(--color-primary);
+	border-bottom: 2px solid var(--color-secondary);
+	padding-bottom: 5px;
+	margin-bottom: 10px;
+	display: inline-block;
 }
 
 .comment {
@@ -382,7 +393,34 @@ a:hover {
 .edit-link {
 	text-align: right;
 	margin-top: 1rem;
-	font-size: 0.8rem;
+}
+
+.edit-link a {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	background: #eee;
+	color: #333 !important;
+	padding: 5px 15px;
+	border-radius: 5px;
+	text-decoration: none;
+	font-size: 0.85rem;
+	transition: 0.2s;
+	border: 1px solid #ccc;
+}
+
+.edit-link a:hover {
+	background: #ddd;
+}
+
+.edit-link a img {
+	display: none;
+	/* 古い画像を隠す */
+}
+
+.edit-link a::before {
+	content: "✎";
+	font-size: 1rem;
 }
 
 .smile-box {
@@ -618,24 +656,26 @@ body.mini-mode .submit-btn {
 
 .btn-floating-open {
 	font-size: 0.75rem;
-	padding: 4px 12px;
-	background: var(--color-secondary);
-	color: #fff !important;
+	padding: 5px 15px;
+	background: #ffecb3;
+	/* 視認性の良いイエローベース */
+	color: #5d4037 !important;
+	/* 黒系の文字で読みやすく */
 	border-radius: 50px;
 	text-decoration: none;
-	margin-left: 10px;
 	display: inline-block;
 	vertical-align: middle;
 	transition: 0.2s;
-	border: 2px solid rgba(0, 0, 0, 0.1);
+	border: 2px solid #ffcc80;
 	font-family: var(--font-heading);
 	font-weight: bold;
+	box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
 }
 
 .btn-floating-open:hover {
-	transform: scale(1.1) rotate(-2deg);
-	background: #26af61;
-	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+	transform: scale(1.05);
+	background: #ffe082;
+	box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.15);
 }
 
 /* Responsive */
