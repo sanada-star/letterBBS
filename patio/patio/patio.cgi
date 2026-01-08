@@ -938,7 +938,7 @@ sub manual_page {
 	close(IN);
 	
 	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/style.css|g;
-	$tmpl =~ s/!([a-z]+_cgi)!/$cf{$1}/g;
+	$tmpl =~ s/!([a-z_]+_cgi)!/$cf{$1}/g;
 	$tmpl =~ s/!bbs_title!/$cf{bbs_title}/g;
 	$tmpl =~ s/!tmpldir!/$cf{tmpldir}/g;
 	
