@@ -190,12 +190,14 @@ a:hover {
 /* Forms */
 .form-container {
 	background: var(--color-card);
-	padding: 2.5rem;
-	border-radius: 20px;
+	padding: 1.5rem;
+	/* 余白を記事と統一 */
+	border-radius: 12px;
 	box-shadow: var(--shadow-pop);
 	margin-bottom: 2rem;
 	border: 3px solid var(--color-border);
-	max-width: 800px;
+	max-width: 100%;
+	/* 横幅制限を撤廃 */
 	margin-left: auto;
 	margin-right: auto;
 }
