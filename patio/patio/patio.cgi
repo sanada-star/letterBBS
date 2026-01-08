@@ -194,9 +194,10 @@ sub read_log {
 	$tmpl =~ s/!bbs_title!/$cf{bbs_title}/g;
 	$tmpl =~ s|<!-- past -->.+?<!-- /past -->||s if ($in{log} ne 'past');
 	
-	# ミニ表示モード対応
-	if ($in{view} eq 'mini') {
-		$tmpl =~ s/<body>/<body class="mini-mode">/;
+	# ミニ表示モード対応 (Floating Form)
+	if ($in{view} eq 'mini' || $in{mini}) {
+		$tmpl =~ s/<body\b[^>]*>/<body class="mini-mode">/i;
+		$tmpl .= "<!-- debug: mini-mode applied -->";
 	}
 	
 	# 画像認証作成
