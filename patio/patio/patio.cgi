@@ -194,6 +194,11 @@ sub read_log {
 	$tmpl =~ s/!bbs_title!/$cf{bbs_title}/g;
 	$tmpl =~ s|<!-- past -->.+?<!-- /past -->||s if ($in{log} ne 'past');
 	
+	# ミニ表示モード対応
+	if ($in{view} eq 'mini') {
+		$tmpl =~ s/<body>/<body class="mini-mode">/;
+	}
+	
 	# 画像認証作成
 	my ($str_plain,$str_crypt);
 	if ($cf{use_captcha} > 0 && $resfm) {

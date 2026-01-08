@@ -10,7 +10,7 @@ function face(smile) {
 // Case 1: Floating Form
 function openFloatingForm(ownerName) {
     const bbs_cgi = './patio.cgi';
-    
+
     // Create UI if not exists
     let container = document.getElementById('floating-container');
     if (!container) {
@@ -33,14 +33,14 @@ function openFloatingForm(ownerName) {
     const iframe = document.getElementById('floating-iframe');
     const targetLabel = document.getElementById('floating-target-name');
     targetLabel.innerText = ownerName + " さん";
-    
+
     // Find owner thread
     fetch(`${bbs_cgi}?mode=find_owner&name=${encodeURIComponent(ownerName)}`)
         .then(response => response.text())
         .then(data => {
             if (data.startsWith('target_id:')) {
                 const threadId = data.split(':')[1];
-                iframe.src = `${bbs_cgi}?read=${threadId}&mode=form`;
+                iframe.src = `${bbs_cgi}?read=${threadId}&mode=form&view=mini#bbsform`;
                 container.style.display = 'flex';
             } else {
                 alert(ownerName + " さんの私書箱が見つかりませんでした。先にスレッドを作成していただく必要があるかもしれません。");

@@ -525,6 +525,53 @@ a:hover {
 	}
 }
 
+/* Mini Mode (for Floating Form) */
+body.mini-mode {
+	background: #fff;
+	padding: 0;
+	margin: 0;
+}
+
+body.mini-mode #head,
+body.mini-mode .bbs-navi,
+body.mini-mode .starter,
+body.mini-mode .replies,
+body.mini-mode .page-btn {
+	display: none !important;
+}
+
+body.mini-mode .main {
+	padding: 10px !important;
+	max-width: 100% !important;
+}
+
+body.mini-mode .form-container {
+	margin: 0 !important;
+	box-shadow: none !important;
+	border: none !important;
+	padding: 1rem !important;
+	background: transparent !important;
+}
+
+body.mini-mode .topic-header {
+	font-size: 1.1rem !important;
+	margin-bottom: 1rem !important;
+}
+
+body.mini-mode .form-group {
+	margin-bottom: 1rem !important;
+}
+
+body.mini-mode .form-group label {
+	font-size: 0.95rem !important;
+	margin-bottom: 0.4rem !important;
+}
+
+body.mini-mode .submit-btn {
+	padding: 0.8rem 2rem !important;
+	font-size: 1.1rem !important;
+}
+
 .floating-header {
 	background: var(--color-primary);
 	color: #fff;
