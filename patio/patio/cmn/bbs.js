@@ -117,6 +117,7 @@ function closeDeskInput(buttonElement) {
         inputArea.style.display = 'none';
         inputArea.querySelector('.desk-subject').value = '';
         inputArea.querySelector('.desk-name').value = '';
+        inputArea.querySelector('.desk-pwd').value = '';
         inputArea.querySelector('.desk-textarea').value = '';
     }
 }
@@ -126,6 +127,7 @@ function saveToDeskStorage(targetName, buttonElement) {
     const inputArea = buttonElement.closest('.desk-input-area');
     const subject = inputArea.querySelector('.desk-subject').value.trim();
     const name = inputArea.querySelector('.desk-name').value.trim();
+    const pwd = inputArea.querySelector('.desk-pwd').value.trim();
     const textarea = inputArea.querySelector('.desk-textarea');
     const message = textarea.value.trim();
 
@@ -135,6 +137,10 @@ function saveToDeskStorage(targetName, buttonElement) {
     }
     if (!name) {
         alert('あなたの名前を入力してください。');
+        return;
+    }
+    if (!pwd) {
+        alert('パスワードを入力してください。');
         return;
     }
     if (!message) {
@@ -150,6 +156,7 @@ function saveToDeskStorage(targetName, buttonElement) {
     if (existingIndex >= 0) {
         deskItems[existingIndex].subject = subject;
         deskItems[existingIndex].name = name;
+        deskItems[existingIndex].pwd = pwd;
         deskItems[existingIndex].message = message;
         deskItems[existingIndex].timestamp = new Date().toISOString();
     } else {
@@ -157,6 +164,7 @@ function saveToDeskStorage(targetName, buttonElement) {
             targetName: targetName,
             subject: subject,
             name: name,
+            pwd: pwd,
             message: message,
             timestamp: new Date().toISOString()
         });
@@ -288,9 +296,10 @@ async function sendAllDeskItems() {
             // 2. regist.cgiへPOST
             const formData = new FormData();
             formData.append('mode', 'regist');
-            formData.append('read', threadId);
+            formData.append('res', threadId);  // 重要：返信モード
             formData.append('sub', item.subject);
             formData.append('name', item.name);
+            formData.append('pwd', item.pwd);
             formData.append('comment', item.message);
 
             const postResponse = await fetch(regist_cgi, {
