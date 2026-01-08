@@ -102,18 +102,6 @@
 						<input type="text" name="name" value="!fm_name!">
 					</div>
 
-					<div class="form-group">
-						<label>メール (任意)</label>
-						<input type="text" name="email" value="!fm_email!">
-						<select name="mlo">
-							<!-- op_mlo -->
-						</select>
-					</div>
-
-					<div class="form-group">
-						<label>URL (任意)</label>
-						<input type="text" name="url" value="!fm_url!">
-					</div>
 
 					<div class="form-group">
 						<label>画像添付</label>
@@ -127,20 +115,9 @@
 						<input type="password" name="pwd">
 					</div>
 
-					<!-- captcha -->
-					<div class="form-group">
-						<label>画像認証</label>
-						<div class="captcha-container">
-							<input type="text" name="captcha" maxlength="8">
-							<img src="!captcha_cgi!?!str_crypt!" class="capt" alt="Key">
-							<input type="hidden" name="str_crypt" value="!str_crypt!">
-						</div>
-					</div>
-					<!-- /captcha -->
 
 					<div class="form-group">
 						<label>メッセージ</label>
-						<div class="smile-box">!smile!</div>
 						<textarea name="comment" rows="7"></textarea>
 					</div>
 				</div>

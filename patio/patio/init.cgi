@@ -183,7 +183,7 @@ $cf{lock_days} = 14;
 # 0 : しない
 # 1 : ライブラリ版（pngren.pl）
 # 2 : モジュール版（GD::SecurityImage + Image::Magick）→ Image::Magick必須
-$cf{use_captcha} = 1;
+$cf{use_captcha} = 0;
 
 # 認証用画像生成ファイル【URLパス】
 $cf{captcha_cgi} = './captcha.cgi';
