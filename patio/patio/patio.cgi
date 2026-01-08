@@ -32,6 +32,7 @@ if ($in{mode} eq 'form') { form_page(); }
 if ($in{mode} eq 'find') { find_page(); }
 if ($in{mode} eq 'note') { note_page(); }
 if ($in{mode} eq 'past') { past_page(); }
+if ($in{mode} eq 'find_owner') { find_owner(); }
 bbs_list();
 
 #-----------------------------------------------------------
@@ -889,3 +890,31 @@ sub autolink {
 	return $text;
 }
 
+
+#-----------------------------------------------------------
+#  名前からスレッドIDを特定（案1 浮遊フォーム用）
+#-----------------------------------------------------------
+sub find_owner {
+	my $target = $in{name};
+	error("名前が指定されていません") if ($target eq "");
+
+	my $found_id = "";
+	open(IN, "$cf{datadir}/index1.log") or error("open err: index1.log");
+	<IN>; # ヘッダー
+	while (<IN>) {
+		my ($num, $sub, $res, $nam, $upd, $last, $key, $upl) = split(/<>/);
+		if ($nam eq $target) {
+			$found_id = $num;
+			last;
+		}
+	}
+	close(IN);
+
+	print "Content-type: text/plain; charset=utf-8\n\n";
+	if ($found_id) {
+		print "target_id:$found_id";
+	} else {
+		print "not_found";
+	}
+	exit;
+}

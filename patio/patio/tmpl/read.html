@@ -34,7 +34,8 @@
 			</div>
 
 			<div class="art-meta">
-				<div><b>投稿者</b>： !name!</div>
+				<div><b>投稿者</b>： !name! <a href="javascript:void(0)" onclick="openFloatingForm('!name!')"
+						class="btn-floating-open">相手の私書箱でお返事 ✉</a></div>
 				<div><b>投稿日</b>： !date!</div>
 				<!-- id -->
 				<div><b>ID</b>： !id!</div>
@@ -60,7 +61,9 @@
 			<!-- loop -->
 			<article class="post reply">
 				<div class="art-meta art-meta-flex">
-					<div><b>!res_name!</b> <span style="font-size:0.8rem;">(!res_date!)</span></div>
+					<div><b>!res_name!</b> <a href="javascript:void(0)" onclick="openFloatingForm('!res_name!')"
+							class="btn-floating-open">相手の私書箱でお返事 ✉</a> <span
+							style="font-size:0.8rem;">(!res_date!)</span></div>
 					<div class="fw-bold">!res_sub!</div>
 				</div>
 
