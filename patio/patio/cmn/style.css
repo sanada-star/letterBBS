@@ -965,3 +965,30 @@ color: #95a5a6;
 padding: 2rem;
 font-size: 1rem;
 }
+
+.desk-field {
+margin-bottom: 0.8rem;
+}
+
+.desk-field label {
+display: block;
+font-weight: bold;
+margin-bottom: 0.3rem;
+color: var(--color-text);
+font-size: 0.9rem;
+}
+
+.desk-field input[type="text"] {
+width: 100%;
+padding: 0.6rem;
+font-family: var(--font-body);
+font-size: 1rem;
+border: 2px solid var(--color-border);
+border-radius: 6px;
+}
+
+.desk-item-meta {
+font-size: 0.85rem;
+color: #666;
+margin-top: 0.3rem;
+}

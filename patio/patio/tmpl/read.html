@@ -75,7 +75,18 @@
 
 				<!-- デスク用入力エリア（初期非表示） -->
 				<div class="desk-input-area" style="display:none;">
-					<textarea placeholder="!res_name! さんへのお返事をここに..." rows="4" class="desk-textarea"></textarea>
+					<div class="desk-field">
+						<label>件名</label>
+						<input type="text" class="desk-subject" placeholder="お返事のタイトル">
+					</div>
+					<div class="desk-field">
+						<label>あなたの名前</label>
+						<input type="text" class="desk-name" placeholder="投稿者名">
+					</div>
+					<div class="desk-field">
+						<label>メッセージ</label>
+						<textarea placeholder="!res_name! さんへのお返事をここに..." rows="4" class="desk-textarea"></textarea>
+					</div>
 					<div class="desk-actions">
 						<button onclick="saveToDeskStorage('!res_name!', this)" class="btn-save-desk">保存してデスクへ</button>
 						<button onclick="closeDeskInput(this)" class="btn-cancel-desk">キャンセル</button>

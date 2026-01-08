@@ -115,17 +115,28 @@ function closeDeskInput(buttonElement) {
     const inputArea = buttonElement.closest('.desk-input-area');
     if (inputArea) {
         inputArea.style.display = 'none';
-        const textarea = inputArea.querySelector('.desk-textarea');
-        textarea.value = '';
+        inputArea.querySelector('.desk-subject').value = '';
+        inputArea.querySelector('.desk-name').value = '';
+        inputArea.querySelector('.desk-textarea').value = '';
     }
 }
 
 // お返事をlocalStorageに保存
 function saveToDeskStorage(targetName, buttonElement) {
     const inputArea = buttonElement.closest('.desk-input-area');
+    const subject = inputArea.querySelector('.desk-subject').value.trim();
+    const name = inputArea.querySelector('.desk-name').value.trim();
     const textarea = inputArea.querySelector('.desk-textarea');
     const message = textarea.value.trim();
 
+    if (!subject) {
+        alert('件名を入力してください。');
+        return;
+    }
+    if (!name) {
+        alert('あなたの名前を入力してください。');
+        return;
+    }
     if (!message) {
         alert('お返事の内容を入力してください。');
         return;
@@ -137,11 +148,15 @@ function saveToDeskStorage(targetName, buttonElement) {
     // 同じ宛先が既にある場合は上書き
     const existingIndex = deskItems.findIndex(item => item.targetName === targetName);
     if (existingIndex >= 0) {
+        deskItems[existingIndex].subject = subject;
+        deskItems[existingIndex].name = name;
         deskItems[existingIndex].message = message;
         deskItems[existingIndex].timestamp = new Date().toISOString();
     } else {
         deskItems.push({
             targetName: targetName,
+            subject: subject,
+            name: name,
             message: message,
             timestamp: new Date().toISOString()
         });
@@ -174,7 +189,10 @@ function refreshDeskPanel() {
     listContainer.innerHTML = deskItems.map((item, index) => `
         <div class="desk-item">
             <div class="desk-item-header">
-                <strong>宛先: ${item.targetName}</strong>
+                <div>
+                    <strong>宛先: ${item.targetName}</strong>
+                    <div class="desk-item-meta">件名: ${item.subject || '(未設定)'} / 投稿者: ${item.name || '(未設定)'}</div>
+                </div>
                 <button onclick="removeDeskItem(${index})" class="btn-remove-item">削除</button>
             </div>
             <div class="desk-item-message">${item.message.replace(/\n/g, '<br>')}</div>
