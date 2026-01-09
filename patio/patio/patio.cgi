@@ -49,8 +49,32 @@ if ($in{mode} eq 'find') { find_page(); }
 if ($in{mode} eq 'note') { note_page(); }
 if ($in{mode} eq 'past') { past_page(); }
 if ($in{mode} eq 'manual') { manual_page(); }
+if ($in{mode} eq 'manual') { manual_page(); }
 if ($in{mode} eq 'find_owner') { find_owner(); }
+if ($in{mode} eq 'check_env') { check_env_func(); } # Debug mode
 bbs_list();
+
+#-----------------------------------------------------------
+#  環境チェック (Debug)
+#-----------------------------------------------------------
+sub check_env_func {
+    print "Content-type: text/html\n\n";
+    print "<html><body><h1>Environment Check (via patio.cgi)</h1>";
+    print "<h2>Perl Version</h2><pre>$]</pre>";
+
+    print "<h3>Archive::Zip</h3>";
+    eval { require Archive::Zip; };
+    if ($@) { print "<p style='color:red'>NOT Installed: $@</p>"; }
+    else { print "<p style='color:green'>Installed. Version: $Archive::Zip::VERSION</p>"; }
+
+    print "<h3>IO::Compress::Zip</h3>";
+    eval { require IO::Compress::Zip; };
+    if ($@) { print "<p style='color:red'>NOT Installed: $@</p>"; }
+    else { print "<p style='color:green'>Installed. Version: $IO::Compress::Zip::VERSION</p>"; }
+
+    print "</body></html>";
+    exit;
+}
 
 #-----------------------------------------------------------
 #  メニュー部表示
