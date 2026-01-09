@@ -60,6 +60,9 @@ bbs_list();
 #-----------------------------------------------------------
 #  ログアーカイブ (Memory Box)
 #-----------------------------------------------------------
+#-----------------------------------------------------------
+#  ログアーカイブ (Memory Box)
+#-----------------------------------------------------------
 sub download_archive {
     # モジュール動的ロード
     eval { require Archive::Zip; };
@@ -89,25 +92,65 @@ sub download_archive {
     # スレッド情報取得
     my ($p_no, $p_sub, $p_res, $p_key) = split(/<>/, $top);
     
-    # 画像ファイル収集用
+    # 画像ファイル収集用 (無効化中だが引数は残す)
     my %images_to_add;
 
-    # HTML生成開始
-    my $html_content = generate_archive_header($p_sub);
-    
+    # 投稿データ収集
+    my @posts_data;
+    my %authors;
+    my $starter_name = "";
+
     # 親記事処理
-    $html_content .= process_archive_post($par, 'starter', \%images_to_add);
+    my ($p_html, $p_name, $p_type) = process_archive_post($par, 'starter', \%images_to_add);
+    push(@posts_data, { html => $p_html, name => $p_name, type => $p_type });
+    $starter_name = $p_name;
 
     # レス記事処理
     foreach my $line (@lines) {
-        $html_content .= process_archive_post($line, 'reply', \%images_to_add);
+        my ($l_html, $l_name, $l_type) = process_archive_post($line, 'reply', \%images_to_add);
+        push(@posts_data, { html => $l_html, name => $l_name, type => $l_type });
+        
+        # 集計 (スターター以外)
+        if ($l_name ne $starter_name) {
+            $authors{$l_name}++;
+        }
     }
 
-    # 画像処理 (無効化)
-    # ユーザー要望により画像同梱は行わないが、将来の復活に備えてロジックはコメントアウトする形でもよいが
-    # 今回はシンプルに「何もしない」
+    # HTML生成 (Chat Style)
+    my $html_content = generate_archive_header($p_sub, \%authors);
     
-    # 変数初期化 (これが抜けていたためエラーになった)
+    # メインコンテンツエリア開始
+    $html_content .= qq|<div class="chat-container">\n|;
+    
+    # サイドバー (PC用) / 上部メニュー (モバイル用)
+    $html_content .= qq|<div class="sidebar">\n|;
+    $html_content .= qq|<div class="sidebar-header">Talk List</div>\n|;
+    $html_content .= qq|<button class="filter-btn active" onclick="filterTimeline('all', this)">全て表示</button>\n|;
+    
+    foreach my $auth (sort keys %authors) {
+        my $count = $authors{$auth};
+        $html_content .= qq|<button class="filter-btn" onclick="filterTimeline('$auth', this)">$auth <span class="badge">$count</span></button>\n|;
+    }
+    $html_content .= qq|</div>\n|; # end sidebar
+
+    # タイムラインエリア
+    $html_content .= qq|<div class="timeline" id="timeline">\n|;
+    
+    foreach my $post (@posts_data) {
+        my $is_starter = ($post->{type} eq 'starter') ? 'true' : 'false';
+        my $auth_attr = $post->{name};
+        # エスケープ処理 (簡易)
+        $auth_attr =~ s/"/&quot;/g;
+        
+        $html_content .= qq|<div class="msg-wrapper" data-author="$auth_attr" data-starter="$is_starter">\n|;
+        $html_content .= $post->{html};
+        $html_content .= qq|</div>\n|;
+    }
+    
+    $html_content .= qq|</div>\n|; # end timeline
+    $html_content .= qq|</div>\n|; # end chat-container
+
+    # 変数初期化
     my $zip = Archive::Zip->new();
     my $count_ok = 0;
     my $count_total = 0;
@@ -117,7 +160,7 @@ sub download_archive {
     if (-e "$cf{cmnurl}/style_simple.css") { $zip->addFile("$cf{cmnurl}/style_simple.css", "style_simple.css"); }
     if (-e "$cf{cmnurl}/style_gloomy.css") { $zip->addFile("$cf{cmnurl}/style_gloomy.css", "style_gloomy.css"); }
     
-    # フッター生成（デバッグなし）
+    # フッター生成
     $html_content .= generate_archive_footer($count_ok, $count_total);
 
     # index.html 追加
@@ -142,29 +185,26 @@ sub process_archive_post {
     $com =~ s/&lt;br&gt;/<br>/g;
     $com =~ s/&lt;br \/&gt;/<br>/g;
 
-    # 画像処理スキップ (テキストのみ)
-    my $img_html = ""; 
-    
-    # 以前の画像処理ロジックは削除
-
     my $class = ($type eq 'starter') ? "post starter" : "post reply";
-
-    return <<HTML;
+    
+    # HTML構築
+    my $html = <<HTML;
 <div class="$class" id="post-$no">
     <div class="art-meta">
-        <div><b>投稿者</b>： $nam</div>
-        <div><b>投稿日</b>： $date</div>
-        <div>$sub</div>
+        <span class="name">$nam</span>
+        <span class="date">$date</span>
     </div>
     <div class="comment">
         $com
     </div>
 </div>
 HTML
+
+    return ($html, $nam, $type);
 }
 
 sub generate_archive_header {
-    my $title = shift;
+    my ($title, $authors_ref) = @_;
     return <<HTML;
 <!DOCTYPE html>
 <html lang="ja">
@@ -174,20 +214,74 @@ sub generate_archive_header {
 <title>$title - Memory Box</title>
 <link rel="stylesheet" href="style.css">
 <style>
-body { max-width: 900px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: #fdfdfd; color: #333; }
-.post { margin-bottom: 20px; padding: 20px; border: 1px solid #e0e0e0; border-radius: 12px; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-.starter { border-left: 6px solid #ff4757; }
-.reply { margin-left: 30px; border-left: 4px solid #747d8c; }
-.art-meta { color: #666; font-size: 0.85rem; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0; display:flex; gap:15px; flex-wrap:wrap; }
-.comment { line-height: 1.8; font-size: 1rem; }
-.art-img { margin: 15px 0; }
-.art-img img { border-radius: 8px; border: 1px solid #eee; }
-h1 { color: #ff4757; border-bottom: 2px solid #ff4757; padding-bottom: 10px; font-size: 1.5rem; }
+/* Chat Style Layout */
+html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
+body { display: flex; flex-direction: column; background: #fdfdfd; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; color: #333; }
+
+header { padding: 15px 20px; border-bottom: 1px solid #eee; background: #fff; z-index: 10; flex-shrink: 0; }
+header h1 { margin: 0; font-size: 1.2rem; color: #ff4757; }
+header p { margin: 0; font-size: 0.8rem; color: #999; }
+
+.chat-container { display: flex; flex: 1; overflow: hidden; }
+
+/* Sidebar */
+.sidebar { width: 260px; background: #f8f9fa; border-right: 1px solid #ddd; overflow-y: auto; display: flex; flex-direction: column; }
+.sidebar-header { padding: 15px; font-weight: bold; color: #555; background: #eee; font-size: 0.9rem; }
+.filter-btn { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 12px 15px; border: none; background: transparent; text-align: left; cursor: pointer; border-bottom: 1px solid #eee; transition: background 0.2s; font-size: 0.95rem; color: #444; }
+.filter-btn:hover { background: #e9ecef; }
+.filter-btn.active { background: #fff; border-left: 4px solid #ff4757; font-weight: bold; color: #333; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+.badge { background: #ff4757; color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: normal; }
+
+/* Timeline */
+.timeline { flex: 1; overflow-y: auto; padding: 20px; background: #fff; scroll-behavior: smooth; }
+.msg-wrapper { transition: all 0.3s ease; }
+.msg-wrapper.hidden { display: none; }
+
+/* Post Styling (Override) */
+.post { margin-bottom: 20px; padding: 15px; border: 1px solid #f0f0f0; border-radius: 12px; background: #fff; max-width: 800px; margin-left: auto; margin-right: auto; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+.starter { border: 2px solid #ff4757; background: #fff5f6; }
+.reply { border-left: 4px solid #747d8c; }
+
+.art-meta { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.85rem; color: #777; border-bottom: 1px dashed #eee; padding-bottom: 5px; }
+.name { font-weight: bold; color: #333; }
+.comment { line-height: 1.7; font-size: 0.95rem; word-wrap: break-word; }
+
+/* Mobile Responsive */
+\@media (max-width: 768px) {
+    .chat-container { flex-direction: column; }
+    .sidebar { width: 100%; height: 120px; border-right: none; border-bottom: 1px solid #ddd; flex-shrink: 0; }
+    .filter-btn { padding: 8px 15px; }
+}
 </style>
+<script>
+function filterTimeline(targetAuthor, btn) {
+    // Buttons
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    // Filter
+    const items = document.querySelectorAll('.msg-wrapper');
+    items.forEach(item => {
+        const author = item.getAttribute('data-author');
+        const isStarter = item.getAttribute('data-starter');
+
+        if (targetAuthor === 'all' || author === targetAuthor || isStarter === 'true') {
+            item.classList.remove('hidden');
+        } else {
+            item.classList.add('hidden');
+        }
+    });
+
+    // Scroll to top
+    document.getElementById('timeline').scrollTop = 0;
+}
+</script>
 </head>
 <body>
-<h1>$title</h1>
-<p style="text-align:right; font-size:0.8em; color:#999; margin-bottom: 30px;">Exported by Memory Box : LetterBBS</p>
+<header>
+    <h1>$title</h1>
+    <p>Exported by Memory Box</p>
+</header>
 HTML
 }
 
