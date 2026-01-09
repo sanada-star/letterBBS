@@ -107,6 +107,11 @@ sub download_archive {
     # ユーザー要望により画像同梱は行わないが、将来の復活に備えてロジックはコメントアウトする形でもよいが
     # 今回はシンプルに「何もしない」
     
+    # 変数初期化 (これが抜けていたためエラーになった)
+    my $zip = Archive::Zip->new();
+    my $count_ok = 0;
+    my $count_total = 0;
+
     # CSSファイル追加
     if (-e "$cf{cmnurl}/style.css") { $zip->addFile("$cf{cmnurl}/style.css", "style.css"); }
     if (-e "$cf{cmnurl}/style_simple.css") { $zip->addFile("$cf{cmnurl}/style_simple.css", "style_simple.css"); }
