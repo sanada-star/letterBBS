@@ -103,11 +103,139 @@ function addToDesk(targetName, buttonElement) {
     // 親のpostコンテナから入力エリアを探して表示
     const postElement = buttonElement.closest('.post');
     const inputArea = postElement.querySelector('.desk-input-area');
+
     if (inputArea) {
         inputArea.style.display = 'block';
         const textarea = inputArea.querySelector('.desk-textarea');
+
+        // タイムライン表示エリアの取得と初期化
+        const timelineContainer = inputArea.querySelector('.desk-timeline');
+        if (timelineContainer) {
+            timelineContainer.style.display = 'flex'; // 表示
+            // 既にロード済みでなければロードする（重複ロード防止はコンテナの状態などで管理してもよいが、今回は毎回最新を取得）
+            loadConversationHistory(targetName, timelineContainer);
+        }
+
         textarea.focus();
     }
+}
+
+// 会話履歴（タイムライン）をロードする
+async function loadConversationHistory(targetName, container) {
+    container.innerHTML = '<div class="timeline-loader">会話履歴を読み込んでいます...</div>';
+
+    try {
+        const bbs_cgi = './patio.cgi';
+
+        // 1. 自分の名前（現在のスレッドオーナー）を取得
+        // read.html の .post.starter .art-meta から取得する想定
+        let myName = "私";
+        const metaDiv = document.querySelector('.post.starter .art-meta');
+        if (metaDiv) {
+            // "投稿者： 名前" という形式を想定してパース
+            const text = metaDiv.innerText;
+            const match = text.match(/投稿者\s*：\s*(.+)/);
+            if (match && match[1]) {
+                myName = match[1].trim().split(/\s/)[0]; // 空白区切りで最初の部分だけ取るなどの正規化
+            }
+        }
+        console.log(`[Timeline] Me: ${myName}, Target: ${targetName}`);
+
+        // 2. 現在のページ（自分の箱）から「相手からのメッセージ」を抽出
+        // .post.reply を走査
+        const incomingMsgs = [];
+        document.querySelectorAll('.post.reply').forEach(post => {
+            const authorEl = post.querySelector('.res-author b');
+            const dateEl = post.querySelector('.res-author span');
+            const commentEl = post.querySelector('.comment');
+
+            if (authorEl && authorEl.innerText.trim() === targetName) {
+                // 日付パース (YYYY/MM/DD(Day) HH:MM)
+                let dateStr = dateEl ? dateEl.innerText.replace(/[()]/g, '') : '';
+                // 必要なら厳密なパースを行うが、文字列比較でもある程度いける。
+                // UnixTimeに変換できればベスト。
+
+                incomingMsgs.push({
+                    type: 'incoming',
+                    author: targetName,
+                    date: dateStr,
+                    text: commentEl ? commentEl.innerHTML : '', // HTMLのまま保持
+                    rawDate: parseDate(dateStr)
+                });
+            }
+        });
+
+        // 3. 相手のスレッド（相手の箱）を取得して「自分からのメッセージ」を抽出
+        const findResponse = await fetch(`${bbs_cgi}?mode=find_owner&name=${encodeURIComponent(targetName)}`);
+        const findData = await findResponse.text();
+
+        const outgoingMsgs = [];
+
+        if (findData.startsWith('target_id:')) {
+            const threadId = findData.split(':')[1];
+            // 相手のログを取得
+            const logResponse = await fetch(`${bbs_cgi}?read=${threadId}&mode=read`); // mode=readでHTML取得
+            const logHtml = await logResponse.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(logHtml, 'text/html');
+
+            doc.querySelectorAll('.post.reply').forEach(post => {
+                const authorEl = post.querySelector('.res-author b');
+                const dateEl = post.querySelector('.res-author span');
+                const commentEl = post.querySelector('.comment');
+
+                if (authorEl && authorEl.innerText.trim() === myName) {
+                    let dateStr = dateEl ? dateEl.innerText.replace(/[()]/g, '') : '';
+                    outgoingMsgs.push({
+                        type: 'outgoing',
+                        author: myName, // 自分
+                        date: dateStr,
+                        text: commentEl ? commentEl.innerHTML : '',
+                        rawDate: parseDate(dateStr)
+                    });
+                }
+            });
+        }
+
+        // 4. マージしてソート
+        const allMsgs = [...incomingMsgs, ...outgoingMsgs];
+        allMsgs.sort((a, b) => a.rawDate - b.rawDate);
+
+        // 5. 描画
+        if (allMsgs.length === 0) {
+            container.innerHTML = '<div class="timeline-loader">過去の会話履歴はありません。</div>';
+        } else {
+            container.innerHTML = '';
+            allMsgs.forEach(msg => {
+                const msgDiv = document.createElement('div');
+                msgDiv.className = `timeline-msg ${msg.type}`;
+                msgDiv.innerHTML = `
+                    <div>${msg.text}</div>
+                    <span class="timeline-meta">${msg.date}</span>
+                `;
+                container.appendChild(msgDiv);
+            });
+            // 最新（一番下）へスクロール
+            container.scrollTop = container.scrollHeight;
+        }
+
+    } catch (e) {
+        console.error(e);
+        container.innerHTML = '<div class="timeline-loader">履歴の読み込みに失敗しました。</div>';
+    }
+}
+
+// 日付文字列をDateオブジェクトに変換するヘルパー
+// 想定形式: (2025/01/09(Fri) 14:00) などのバリエーションに対応
+function parseDate(str) {
+    if (!str) return 0;
+    // カッコなどを除去して純粋な日付文字列にする努力
+    // 例: "2025/01/09(Fri) 14:00" -> "2025/01/09 14:00"
+    let cleanStr = str.replace(/\([A-Za-z]+\)/, '');
+    // Date.parseで読めるかトライ
+    let time = Date.parse(cleanStr);
+    if (isNaN(time)) return 0;
+    return time;
 }
 
 // 入力エリアを閉じる
@@ -119,6 +247,9 @@ function closeDeskInput(buttonElement) {
         inputArea.querySelector('.desk-name').value = '';
         inputArea.querySelector('.desk-pwd').value = '';
         inputArea.querySelector('.desk-textarea').value = '';
+        // タイムラインもクリアしておく（次回開くときに再ロード）
+        const timeline = inputArea.querySelector('.desk-timeline');
+        if (timeline) timeline.innerHTML = '';
     }
 }
 
