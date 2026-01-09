@@ -253,7 +253,7 @@ async function loadConversationHistory(targetName, container) {
                     if (cleanText) {
                         outgoingMsgs.push({
                             type: 'outgoing',
-                            author: myName,
+                            author: myName, // 自分
                             date: dateStr,
                             text: cleanText,
                             rawDate: parseDate(dateStr)
@@ -265,6 +265,8 @@ async function loadConversationHistory(targetName, container) {
 
         // 4. マージしてソート
         const allMsgs = [...incomingMsgs, ...outgoingMsgs];
+
+        // 日付で昇順ソート（古い順） -> タイムラインとして読むため
         allMsgs.sort((a, b) => a.rawDate - b.rawDate);
 
         // 5. 描画
@@ -272,19 +274,44 @@ async function loadConversationHistory(targetName, container) {
             container.innerHTML = '<div class="timeline-loader">過去の会話履歴はありません。</div>';
         } else {
             container.innerHTML = '';
-            // 日付ごとの区切りなどを入れるともっとチャットっぽくなるが、まずはシンプルに
-            allMsgs.forEach(msg => {
-                const msgDiv = document.createElement('div');
-                msgDiv.className = `timeline-msg ${msg.type}`;
-                // 日付を短くする (MM/DD HH:mm)
-                const shortDate = msg.date.replace(/^\d{4}\//, '').replace(/\([A-Za-z]+\)/, '');
 
-                msgDiv.innerHTML = `
-                    <div>${msg.text}</div>
-                    <span class="timeline-meta">${shortDate}</span>
+            allMsgs.forEach(msg => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'timeline-item'; // シンプルなリストアイテム
+
+                // 日付整形 (YYYY/MM/DD HH:MM)
+                let dateDisplay = msg.date.replace(/\([A-Za-z]+\)/, ''); // 曜日除去
+
+                // ヘッダー（日付と名前）
+                const headerDiv = document.createElement('div');
+                headerDiv.className = 'timeline-header';
+
+                // 自分の発言か相手の発言かで色を変えるなどの装飾用クラス
+                const authorClass = (msg.author === myName) ? 'timeline-author-me' : 'timeline-author-target';
+
+                headerDiv.innerHTML = `
+                    <span class="timeline-date">${dateDisplay}</span>
+                    <span class="timeline-author ${authorClass}">${msg.author}</span>
                 `;
-                container.appendChild(msgDiv);
+
+                // 本文
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'timeline-content';
+                contentDiv.innerHTML = msg.text; // クレンジング済みのテキスト(<br>入り)
+
+                // クリックで引用（要望の「引用できるといい」への保険的な対応）
+                contentDiv.title = "クリックして引用";
+                contentDiv.style.cursor = "pointer";
+                contentDiv.onclick = function () {
+                    const textarea = container.closest('.desk-input-area').querySelector('.desk-textarea');
+                    textarea.value += `> ${msg.text.replace(/<br>/g, '\n> ')}\n`;
+                };
+
+                itemDiv.appendChild(headerDiv);
+                itemDiv.appendChild(contentDiv);
+                container.appendChild(itemDiv);
             });
+
             // 最新（一番下）へスクロール
             container.scrollTop = container.scrollHeight;
         }
@@ -295,17 +322,21 @@ async function loadConversationHistory(targetName, container) {
     }
 }
 
-// 日付文字列をDateオブジェクトに変換するヘルパー
-// 想定形式: (2025/01/09(Fri) 14:00) などのバリエーションに対応
+// 日付文字列をDateオブジェクトに変換するヘルパー（強化版）
 function parseDate(str) {
     if (!str) return 0;
-    // カッコなどを除去して純粋な日付文字列にする努力
-    // 例: "2025/01/09(Fri) 14:00" -> "2025/01/09 14:00"
-    let cleanStr = str.replace(/\([A-Za-z]+\)/, '');
-    // Date.parseで読めるかトライ
-    let time = Date.parse(cleanStr);
-    if (isNaN(time)) return 0;
-    return time;
+    // 数値だけ取り出して処理する (2026/01/09(Fri) 15:10 -> 2026, 1, 9, 15, 10)
+    const match = str.match(/(\d{4})[\/-](\d{1,2})[\/-](\d{1,2}).*?(\d{1,2}):(\d{1,2})/);
+    if (match) {
+        const year = parseInt(match[1], 10);
+        const month = parseInt(match[2], 10) - 1; // 月は0始まり
+        const day = parseInt(match[3], 10);
+        const hour = parseInt(match[4], 10);
+        const min = parseInt(match[5], 10);
+        return new Date(year, month, day, hour, min).getTime();
+    }
+    // フォールバック
+    return Date.parse(str) || 0;
 }
 
 // 入力エリアを閉じる

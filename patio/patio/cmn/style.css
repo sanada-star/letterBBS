@@ -1109,3 +1109,77 @@ body.mini-mode .correspondesk-panel {
     border: 2px dashed #ffb6c1;
     margin-top: 0.5rem;
 }
+/* ========================================
+   莨夊ｩｱ繧ｿ繧､繝繝ｩ繧､繝ｳ (Timeline) - 繝ｪ繧ｹ繝亥ｽ｢蠑・
+   ======================================== */
+.desk-timeline {
+    border: 1px solid #ddd;
+    background-color: #fff;
+    /* 閭梧勹逋ｽ */
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 1rem;
+    max-height: 300px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    /* 髫咎俣縺ｯpadding縺ｧ隱ｿ謨ｴ */
+}
+
+.timeline-item {
+    border-bottom: 1px solid #f0f0f0;
+    padding: 8px 0;
+}
+
+.timeline-item:last-child {
+    border-bottom: none;
+}
+
+.timeline-header {
+    font-size: 0.8rem;
+    color: #888;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.timeline-date {
+    font-family: monospace;
+}
+
+.timeline-author {
+    font-weight: bold;
+    color: #444;
+}
+
+.timeline-author-me {
+    color: #2e8b57;
+    /* 閾ｪ蛻・・蜷榊燕縺ｯ邱醍ｳｻ */
+}
+
+.timeline-author-target {
+    color: #d2691e;
+    /* 逶ｸ謇九・蜷榊燕縺ｯ繧ｪ繝ｬ繝ｳ繧ｸ邉ｻ */
+}
+
+.timeline-content {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #333;
+    padding-left: 10px;
+    /* 蟆代＠繧､繝ｳ繝・Φ繝・*/
+    border-left: 3px solid transparent;
+    /* 繝帙ヰ繝ｼ譎ゅ・逶ｮ蜊ｰ逕ｨ */
+}
+
+.timeline-content:hover {
+    border-left-color: #ddd;
+    background-color: #fafafa;
+}
+
+/* 莉･蜑阪・繧ｹ繧ｿ繧､繝ｫ繧呈遠縺｡豸医＠ */
+.timeline-msg {
+    display: none;
+}
