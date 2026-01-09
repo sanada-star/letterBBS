@@ -1125,7 +1125,10 @@ EOM
 <title>$ttl</title>
 </head>
 <body>
-<div id="head">:: WEB PATIO 管理画面 ::</div>
+<div id="head">
+	:: WEB PATIO 管理画面 ::
+	<a href="$cf{bbs_cgi}" style="color:#fff; font-size:0.8rem; text-decoration:none; margin-left:15px; border:1px solid #fff; padding:2px 8px; border-radius:4px;">&lt; BBSトップへ戻る</a>
+</div>
 EOM
 }
 
