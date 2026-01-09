@@ -449,17 +449,21 @@ a:hover {
 	font-size: 0.9rem;
 }
 
-/* Compact Edit Link */
+/* Compact Edit Link (Absolute Top Right) */
 .edit-link {
-	text-align: right;
-	margin-top: 0.5rem;
+	position: absolute;
+	top: 0.8rem;
+	right: 1rem;
+	margin: 0;
+	z-index: 10;
 }
 
 .edit-link a {
 	display: inline-block;
 	color: #999 !important;
 	text-decoration: none;
-	font-size: 0.8rem;
+	font-size: 0 !important;
+	/* Hide original text/alt */
 	transition: 0.2s;
 	background: none;
 	border: none;
@@ -469,7 +473,7 @@ a:hover {
 .edit-link a:hover {
 	color: var(--color-primary) !important;
 	background: none;
-	text-decoration: underline;
+	text-decoration: none;
 }
 
 .edit-link a img {
@@ -478,7 +482,13 @@ a:hover {
 
 .edit-link a::before {
 	content: "✎ 編集";
-	margin-right: 2px;
+	font-size: 0.8rem !important;
+	/* Restore font size for pseudo-element */
+	white-space: nowrap;
+}
+
+.edit-link a:hover::before {
+	text-decoration: underline;
 }
 
 .smile-box {
