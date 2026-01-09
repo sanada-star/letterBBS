@@ -99,20 +99,55 @@ function makeDraggable(el, handle) {
 const DESK_STORAGE_KEY = 'letterBBS_correspondesk';
 
 // デスクに置くボタンをクリック
-function addToDesk(targetName, buttonElement) {
+function addToDesk(arg1, arg2) {
+    let buttonElement, targetName;
+
+    // 引数のゆらぎ吸収（HTMLが古い場合と新しい場合の両方に対応）
+    if (arg1 instanceof HTMLElement) {
+        // パターンA: addToDesk(this) - 古いHTML
+        buttonElement = arg1;
+        targetName = null; // 後でDOMから取得
+    } else {
+        // パターンB: addToDesk('Name', this) - 新しいHTML
+        targetName = arg1;
+        buttonElement = arg2;
+    }
+
+    if (!buttonElement) return;
+
     // 親のpostコンテナから入力エリアを探して表示
     const postElement = buttonElement.closest('.post');
     const inputArea = postElement.querySelector('.desk-input-area');
+
+    // targetNameが未取得ならここで取得（フォールバック）
+    if (!targetName) {
+        const authorBold = postElement.querySelector('.res-author b');
+        if (authorBold) targetName = authorBold.innerText.trim();
+        else targetName = "名無し"; // 最終手段
+    }
 
     if (inputArea) {
         inputArea.style.display = 'block';
         const textarea = inputArea.querySelector('.desk-textarea');
 
-        // タイムライン表示エリアの取得と初期化
-        const timelineContainer = inputArea.querySelector('.desk-timeline');
+        // タイムライン表示エリアの取得（なければ作る！）
+        let timelineContainer = inputArea.querySelector('.desk-timeline');
+        if (!timelineContainer) {
+            console.log("Creating missing timeline container...");
+            timelineContainer = document.createElement('div');
+            timelineContainer.className = 'desk-timeline';
+            timelineContainer.style.display = 'none'; // 初期は非表示
+            // 入力欄(fieldの親または前)の前に挿入
+            const firstField = inputArea.querySelector('.desk-field');
+            if (firstField) {
+                inputArea.insertBefore(timelineContainer, firstField);
+            } else {
+                inputArea.prepend(timelineContainer);
+            }
+        }
+
         if (timelineContainer) {
             timelineContainer.style.display = 'flex'; // 表示
-            // 既にロード済みでなければロードする（重複ロード防止はコンテナの状態などで管理してもよいが、今回は毎回最新を取得）
             loadConversationHistory(targetName, timelineContainer);
         }
 
