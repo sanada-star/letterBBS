@@ -34,6 +34,8 @@ if (open(THEME, "$theme_file")) {
 	chomp($saved_theme);
 	if ($saved_theme eq 'gloomy') {
 		$css_file = "style_gloomy.css";
+	} elsif ($saved_theme eq 'simple') {
+		$css_file = "style_simple.css";
 	}
 }
 $cf{css_filename} = $css_file;
