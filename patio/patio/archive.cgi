@@ -11,7 +11,8 @@ use strict;
 use CGI::Carp qw(fatalsToBrowser);
 use lib "./lib";
 use CGI::Minimal;
-use IO::Compress::Zip qw(zip $ZipError);
+# use IO::Compress::Zip; # Removed
+use Archive::Zip qw( :ERROR_CODES :CONSTANTS );
 
 # 設定ファイル認識
 require "./init.cgi";
@@ -90,45 +91,44 @@ sub download_archive {
 
     $html_content .= generate_html_footer();
 
-    # ZIP作成・出力
-    print "Content-Type: application/zip\n";
-    print "Content-Disposition: attachment; filename=thread_$no.zip\n\n";
-
-    # STDOUTに出力するためにファイルハンドル作成 (IO::String的なものが必要だが、直接STDOUTへ)
-    # IO::Compress::Zip は出力先に '-' (STDOUT) を指定可能
-    my $z = new IO::Compress::Zip '-' 
-        or die "zip failed: $ZipError\n";
-
+    # ZIP作成
+    my $zip = Archive::Zip->new();
+    
     # index.html 追加
-    $z->addData($html_content, "index.html");
+    # addData は古いメソッド、addString が一般的
+    my $string_member = $zip->addString( $html_content, 'index.html' );
+    $string_member->desiredCompressionMethod( COMPRESSION_DEFLATED );
 
     # 画像ファイル追加
     foreach my $img_path (keys %images_to_add) {
         my $zip_path = $images_to_add{$img_path};
         if (-e $img_path) {
-            $z->addFile($img_path, $zip_path);
+            my $file_member = $zip->addFile( $img_path, $zip_path );
+            if ($file_member) {
+                $file_member->desiredCompressionMethod( COMPRESSION_DEFLATED );
+            }
         }
     }
 
-    # CSSファイル追加 (直下の style.css を読み込んで追加)
-    # テーマごとのCSSを統合するのは大変なので、今は style.css を標準とする
+    # CSSファイル追加
     if (-e "$cf{cmnurl}/style.css") {
-        $z->addFile("$cf{cmnurl}/style.css", "style.css");
+        $zip->addFile("$cf{cmnurl}/style.css", "style.css");
     }
-    # 他のテーマCSSも念のため同梱
     if (-e "$cf{cmnurl}/style_simple.css") {
-        $z->addFile("$cf{cmnurl}/style_simple.css", "style_simple.css");
+        $zip->addFile("$cf{cmnurl}/style_simple.css", "style_simple.css");
     }
     if (-e "$cf{cmnurl}/style_gloomy.css") {
-        $z->addFile("$cf{cmnurl}/style_gloomy.css", "style_gloomy.css");
+        $zip->addFile("$cf{cmnurl}/style_gloomy.css", "style_gloomy.css");
     }
     
-    # アイコン等 (最低限)
-    # images/ フォルダを作りそこにアイコンを入れるか、HTML内で Base64 にするか？
-    # 今回は簡略化のため、オンラインの画像リンクはオフラインでは切れることを許容する
-    # ただし、添付画像は重要なので include する
+    # 出力
+    print "Content-Type: application/zip\n";
+    print "Content-Disposition: attachment; filename=thread_$no.zip\n\n";
 
-    $z->close();
+    binmode STDOUT;
+    $zip->writeToFileHandle( \*STDOUT ) == AZ_OK 
+        or die "write error";
+    
     exit;
 }
 
@@ -186,26 +186,27 @@ sub generate_html_header {
 <title>$title - Memory Box</title>
 <link rel="stylesheet" href="style.css">
 <style>
-body { max-width: 900px; margin: 0 auto; padding: 20px; font-family: sans-serif; }
-.post { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: #fff; }
-.starter { border-left: 5px solid #ff4757; }
-.reply { margin-left: 20px; border-left: 3px solid #ccc; }
-.art-meta { color: #666; font-size: 0.9em; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px dashed #eee; }
-.comment { line-height: 1.6; }
-.art-img { margin: 10px 0; }
+body { max-width: 900px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: #fdfdfd; color: #333; }
+.post { margin-bottom: 20px; padding: 20px; border: 1px solid #e0e0e0; border-radius: 12px; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.starter { border-left: 6px solid #ff4757; }
+.reply { margin-left: 30px; border-left: 4px solid #747d8c; }
+.art-meta { color: #666; font-size: 0.85rem; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0; display:flex; gap:15px; flex-wrap:wrap; }
+.comment { line-height: 1.8; font-size: 1rem; }
+.art-img { margin: 15px 0; }
+.art-img img { border-radius: 8px; border: 1px solid #eee; }
+h1 { color: #ff4757; border-bottom: 2px solid #ff4757; padding-bottom: 10px; font-size: 1.5rem; }
 </style>
 </head>
 <body>
 <h1>$title</h1>
-<p style="text-align:right; font-size:0.8em; color:#999;">Exported by Memory Box</p>
-<hr>
+<p style="text-align:right; font-size:0.8em; color:#999; margin-bottom: 30px;">Exported by Memory Box : LetterBBS</p>
 HTML
 }
 
 sub generate_html_footer {
     return <<HTML;
-<hr>
-<p style="text-align:center; color:#ccc; font-size:0.8em;">&copy; LetterBBS Archive</p>
+<hr style="margin-top:50px; border:0; border-top:1px solid #eee;">
+<p style="text-align:center; color:#ccc; font-size:0.8em; margin-bottom:50px;">&copy; LetterBBS Archive</p>
 </body>
 </html>
 HTML
