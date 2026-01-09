@@ -99,76 +99,14 @@ function makeDraggable(el, handle) {
 const DESK_STORAGE_KEY = 'letterBBS_correspondesk';
 
 // デスクに置くボタンをクリック
-function addToDesk(buttonElement) {
-    console.log("[Debug] addToDesk called v3"); // Version check log
-
-    // 親のpostコンテナから情報を取得
+function addToDesk(targetName, buttonElement) {
+    // 親のpostコンテナから入力エリアを探して表示
     const postElement = buttonElement.closest('.post');
-    if (!postElement) {
-        console.error("[Debug] Error: .post element not found");
-        alert("エラー: 記事データが見つかりません");
-        return;
-    }
-
-    // 投稿者名の取得（複数のパターンで試行）
-    let targetName = "名無し";
-    const authorBold = postElement.querySelector('.res-author b'); // パターン1: .res-author 内の bタグ
-    const metaFlex = postElement.querySelector('.art-meta-flex');  // パターン2: 親コンテナ
-
-    if (authorBold) {
-        targetName = authorBold.innerText.trim();
-        console.log("[Debug] Name found via .res-author b:", targetName);
-    } else if (metaFlex) {
-        // フォールバック: テキストノードなどから無理やり探す
-        console.warn("[Debug] Warning: .res-author b not found. Trying fallback...");
-        const rawText = metaFlex.innerText;
-        const match = rawText.match(/^(.+?)\s*\(\d{4}\//); // 日付の前までを取得
-        if (match && match[1]) {
-            targetName = match[1].trim();
-            console.log("[Debug] Name found via fallback regex:", targetName);
-        }
-    } else {
-        console.error("[Debug] Error: Could not resolve targetName");
-    }
-
-    // 本文の取得
-    const commentElement = postElement.querySelector('.comment');
-    console.log("[Debug] commentElement:", commentElement);
-
-    // 元のコメントを引用形式に整形
-    let originalText = commentElement ? commentElement.innerText.trim() : "";
-    console.log("[Debug] originalText length:", originalText.length);
-
-    // 長すぎる場合は適度にカット（150文字程度）
-    if (originalText.length > 150) {
-        originalText = originalText.substring(0, 150) + "...";
-    }
-
-    // 引用記号を付与
-    const formattedQuote = `> ${targetName}さんの発言:\n> ${originalText.replace(/\n/g, '\n> ')}\n\n`;
-    console.log("[Debug] formattedQuote:", formattedQuote);
-
     const inputArea = postElement.querySelector('.desk-input-area');
     if (inputArea) {
         inputArea.style.display = 'block';
         const textarea = inputArea.querySelector('.desk-textarea');
-        console.log("[Debug] textarea found. current value:", textarea.value);
-
-        // 宛先情報を placeholder などでヒント出し（内部管理用）
-        textarea.placeholder = `${targetName} さんへのお返事をここに...`;
-
-        // 入力欄が空の場合のみ引用をセット
-        if (!textarea.value) {
-            textarea.value = formattedQuote;
-            console.log("[Debug] Quote inserted successfully");
-        } else {
-            console.log("[Debug] Textarea is not empty. Skipping insert.");
-        }
-
         textarea.focus();
-        textarea.setSelectionRange(textarea.value.length, textarea.value.length);
-    } else {
-        console.error("[Debug] Error: .desk-input-area not found");
     }
 }
 
