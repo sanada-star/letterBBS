@@ -185,18 +185,35 @@ async function loadConversationHistory(targetName, container) {
             const commentEl = post.querySelector('.comment');
 
             if (authorEl && authorEl.innerText.trim() === targetName) {
-                // 日付パース (YYYY/MM/DD(Day) HH:MM)
+                // 日付パース
                 let dateStr = dateEl ? dateEl.innerText.replace(/[()]/g, '') : '';
-                // 必要なら厳密なパースを行うが、文字列比較でもある程度いける。
-                // UnixTimeに変換できればベスト。
 
-                incomingMsgs.push({
-                    type: 'incoming',
-                    author: targetName,
-                    date: dateStr,
-                    text: commentEl ? commentEl.innerHTML : '', // HTMLのまま保持
-                    rawDate: parseDate(dateStr)
-                });
+                // 本文のクレンジング
+                // 1. HTMLタグを除去してプレーンテキスト化（意図しないDOM混入防止）
+                // 2. 引用行（> で始まる行）を除去
+                // 3. 空行のトリム
+                let rawHtml = commentEl ? commentEl.innerHTML : '';
+                let cleanText = rawHtml
+                    .split(/<br\s*\/?>/i)
+                    .map(line => {
+                        // タグ除去
+                        let text = line.replace(/<[^>]+>/g, '').trim();
+                        // 引用行（>...）を除去
+                        if (text.startsWith('&gt;') || text.startsWith('>')) return null;
+                        return text;
+                    })
+                    .filter(line => line !== null && line !== '')
+                    .join('<br>');
+
+                if (cleanText) {
+                    incomingMsgs.push({
+                        type: 'incoming',
+                        author: targetName,
+                        date: dateStr,
+                        text: cleanText,
+                        rawDate: parseDate(dateStr)
+                    });
+                }
             }
         });
 
@@ -209,7 +226,7 @@ async function loadConversationHistory(targetName, container) {
         if (findData.startsWith('target_id:')) {
             const threadId = findData.split(':')[1];
             // 相手のログを取得
-            const logResponse = await fetch(`${bbs_cgi}?read=${threadId}&mode=read`); // mode=readでHTML取得
+            const logResponse = await fetch(`${bbs_cgi}?read=${threadId}&mode=read`);
             const logHtml = await logResponse.text();
             const parser = new DOMParser();
             const doc = parser.parseFromString(logHtml, 'text/html');
@@ -221,13 +238,27 @@ async function loadConversationHistory(targetName, container) {
 
                 if (authorEl && authorEl.innerText.trim() === myName) {
                     let dateStr = dateEl ? dateEl.innerText.replace(/[()]/g, '') : '';
-                    outgoingMsgs.push({
-                        type: 'outgoing',
-                        author: myName, // 自分
-                        date: dateStr,
-                        text: commentEl ? commentEl.innerHTML : '',
-                        rawDate: parseDate(dateStr)
-                    });
+
+                    let rawHtml = commentEl ? commentEl.innerHTML : '';
+                    let cleanText = rawHtml
+                        .split(/<br\s*\/?>/i)
+                        .map(line => {
+                            let text = line.replace(/<[^>]+>/g, '').trim();
+                            if (text.startsWith('&gt;') || text.startsWith('>')) return null;
+                            return text;
+                        })
+                        .filter(line => line !== null && line !== '')
+                        .join('<br>');
+
+                    if (cleanText) {
+                        outgoingMsgs.push({
+                            type: 'outgoing',
+                            author: myName,
+                            date: dateStr,
+                            text: cleanText,
+                            rawDate: parseDate(dateStr)
+                        });
+                    }
                 }
             });
         }
@@ -241,12 +272,16 @@ async function loadConversationHistory(targetName, container) {
             container.innerHTML = '<div class="timeline-loader">過去の会話履歴はありません。</div>';
         } else {
             container.innerHTML = '';
+            // 日付ごとの区切りなどを入れるともっとチャットっぽくなるが、まずはシンプルに
             allMsgs.forEach(msg => {
                 const msgDiv = document.createElement('div');
                 msgDiv.className = `timeline-msg ${msg.type}`;
+                // 日付を短くする (MM/DD HH:mm)
+                const shortDate = msg.date.replace(/^\d{4}\//, '').replace(/\([A-Za-z]+\)/, '');
+
                 msgDiv.innerHTML = `
                     <div>${msg.text}</div>
-                    <span class="timeline-meta">${msg.date}</span>
+                    <span class="timeline-meta">${shortDate}</span>
                 `;
                 container.appendChild(msgDiv);
             });
