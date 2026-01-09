@@ -72,12 +72,12 @@
 			<article class="post reply">
 				<div class="res-sub">!res_sub!</div>
 				<div class="art-meta-flex">
-					<div><b>!res_name!</b> <span style="font-size:0.8rem;">(!res_date!)</span></div>
+					<div class="res-author"><b>!res_name!</b> <span style="font-size:0.8rem;">(!res_date!)</span></div>
 					<div class="reply-actions">
-						<a href="javascript:void(0)" onclick="addToDesk('!res_name!', this)" class="btn-desk">📥
+						<a href="javascript:void(0)" onclick="addToDesk(this)" class="btn-desk">📥
 							デスクに置く</a>
-						<a href="javascript:void(0)" onclick="openFloatingForm('!res_name!')"
-							class="btn-floating-open">直接返信 ✉</a>
+						<a href="javascript:void(0)" onclick="openFloatingForm(this)" class="btn-floating-open">直接返信
+							✉</a>
 					</div>
 				</div>
 

@@ -100,7 +100,7 @@ const DESK_STORAGE_KEY = 'letterBBS_correspondesk';
 
 // デスクに置くボタンをクリック
 function addToDesk(buttonElement) {
-    console.log("[Debug] addToDesk called");
+    console.log("[Debug] addToDesk called v3"); // Version check log
 
     // 親のpostコンテナから情報を取得
     const postElement = buttonElement.closest('.post');
