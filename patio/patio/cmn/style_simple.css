@@ -710,3 +710,20 @@ a:hover {
 	font-weight: bold;
 	color: var(--color-primary);
 }
+
+/* Current Item Highlight (Simple Version) */
+.timeline-item.timeline-current {
+	background-color: #fff9c4;
+	/* Light Yellow */
+	border: 1px solid #fbc02d;
+	/* Darker Yellow border */
+	border-radius: 4px;
+	padding: 8px;
+	margin: 5px 0;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* No badge for Simple theme */
+.timeline-item.timeline-current::after {
+	content: none;
+}
