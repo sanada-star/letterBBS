@@ -72,8 +72,8 @@ sub bbs_list {
 	} else {
 		$tmpl =~ s|<!-- auth -->.+?<!-- /auth -->||sg;
 	}
-	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/style.css?v=2|g;
-	$tmpl =~ s|!bbs_js!|$cf{cmnurl}/bbs_v4.js|g;
+	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/style.css?v=20250109_final|g;
+	$tmpl =~ s|!bbs_js!|$cf{cmnurl}/bbs_v4.js?v=20250109_final|g;
 	$tmpl =~ s/!([a-z]+_cgi)!/$cf{$1}/g;
 	$tmpl =~ s/!bbs_title!/$cf{bbs_title}/g;
 	$tmpl =~ s/!homepage!/$cf{homepage}/g;
@@ -192,8 +192,8 @@ sub read_log {
 	my $tmpl = join('',<IN>);
 	close(IN);
 	
-	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/style.css|g;
-	$tmpl =~ s|!bbs_js!|$cf{cmnurl}/bbs.js|g;
+	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/style.css?v=20250109_final|g;
+	$tmpl =~ s|!bbs_js!|$cf{cmnurl}/bbs_v4.js?v=20250109_final|g;
 	$tmpl =~ s/!bbs_title!/$cf{bbs_title}/g;
 	$tmpl =~ s|<!-- past -->.+?<!-- /past -->||s if ($in{log} ne 'past');
 	
@@ -384,8 +384,8 @@ sub note_page {
 	close(IN);
 	
 	# 文字置換
-	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/style.css|g;
-	$tmpl =~ s|!bbs_js!|$cf{cmnurl}/bbs.js|g;
+	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/style.css?v=20250109_final|g;
+	$tmpl =~ s|!bbs_js!|$cf{cmnurl}/bbs_v4.js?v=20250109_final|g;
 	$tmpl =~ s/!bbs_title!/$cf{bbs_title}/g;
 	$tmpl =~ s/!maxdata!/$cf{maxdata}バイト/g;
 	$tmpl =~ s/!max_w!/$cf{max_img_w}/g;
