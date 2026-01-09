@@ -148,6 +148,7 @@ function addToDesk(arg1, arg2) {
 
         if (timelineContainer) {
             timelineContainer.style.display = 'flex'; // 表示
+            console.log(`[Timeline] Loading for target: ${targetName}`, postElement);
             loadConversationHistory(targetName, timelineContainer, postElement);
         }
 
@@ -161,6 +162,7 @@ async function loadConversationHistory(targetName, container, currentRefPost) {
 
     try {
         const bbs_cgi = './patio.cgi';
+        console.log(`[Timeline] Start loading. refPost:`, currentRefPost);
 
         // 1. 自分の名前（現在のスレッドオーナー）を取得
         // read.html の .post.starter .art-meta から取得する想定
