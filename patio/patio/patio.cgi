@@ -103,62 +103,22 @@ sub download_archive {
         $html_content .= process_archive_post($line, 'reply', \%images_to_add);
     }
 
-    # 画像処理 (絶対パス変換 & 存在チェック)
-    my $count_ok = 0;
-    my $count_total = 0;
-    my @debug_log;
+    # 画像処理 (無効化)
+    # ユーザー要望により画像同梱は行わないが、将来の復活に備えてロジックはコメントアウトする形でもよいが
+    # 今回はシンプルに「何もしない」
     
-    # デバッグ情報
-    use Cwd;
-    push(@debug_log, "CWD: " . Cwd::getcwd());
-    push(@debug_log, "UplDir Config: $cf{upldir}");
-    
-    # ZIP作成
-    my $zip = Archive::Zip->new();
-    
-    # 画像ファイル追加
-    foreach my $zip_path (keys %images_to_add) {
-        $count_total++;
-        my $real_path = $images_to_add{$zip_path};
-        
-        # デバッグ: パス確認
-        my $exists = (-e $real_path) ? "YES" : "NO";
-        push(@debug_log, "File: $real_path -> Exists: $exists"); # ZIP path is key now? No wait. 
-        # Wait, I need to check how I stored them.
-        # Below logic in process_archive_post: $img_ref->{$zip_path} = $src_file; -- NO
-        # Original: $img_ref->{$src_file} = $zip_path;
-        # So key is src_file (absolute), value is zip_path (relative).
-    }
-    
-    # Re-loop with correct checking
-    foreach my $src_file (keys %images_to_add) {
-         my $zip_rel_path = $images_to_add{$src_file};
-         
-         if (-e $src_file) {
-            my $file_member = $zip->addFile( $src_file, $zip_rel_path );
-            if ($file_member) {
-                $file_member->desiredCompressionMethod( $COMPRESSION_DEFLATED );
-                $count_ok++;
-            } else {
-                 push(@debug_log, "AddFile Failed: $src_file");
-            }
-         } else {
-             push(@debug_log, "Not Found: $src_file");
-         }
-    }
-    
-    # フッターにデバッグ情報追加
-    $html_content .= generate_archive_footer($count_ok, $count_total, \@debug_log);
-
-    # index.html 追加
-    my $string_member = $zip->addString( $html_content, 'index.html' );
-    $string_member->desiredCompressionMethod( $COMPRESSION_DEFLATED );
-
     # CSSファイル追加
     if (-e "$cf{cmnurl}/style.css") { $zip->addFile("$cf{cmnurl}/style.css", "style.css"); }
     if (-e "$cf{cmnurl}/style_simple.css") { $zip->addFile("$cf{cmnurl}/style_simple.css", "style_simple.css"); }
     if (-e "$cf{cmnurl}/style_gloomy.css") { $zip->addFile("$cf{cmnurl}/style_gloomy.css", "style_gloomy.css"); }
     
+    # フッター生成（デバッグなし）
+    $html_content .= generate_archive_footer($count_ok, $count_total);
+
+    # index.html 追加
+    my $string_member = $zip->addString( $html_content, 'index.html' );
+    $string_member->desiredCompressionMethod( $COMPRESSION_DEFLATED );
+
     # 出力
     print "Content-Type: application/zip\n";
     print "Content-Disposition: attachment; filename=thread_$no.zip\n\n";
@@ -177,33 +137,10 @@ sub process_archive_post {
     $com =~ s/&lt;br&gt;/<br>/g;
     $com =~ s/&lt;br \/&gt;/<br>/g;
 
-    my $img_html = "";
-    foreach my $up ($up1, $up2, $up3) {
-        if ($up) {
-            # ログの拡張子情報が壊れている可能性があるため、globで実ファイルを探す
-            my $n = ($up eq $up1) ? 1 : ($up eq $up2) ? 2 : 3;
-            my $search_pattern = "$cf{upldir}/$tim-$n.*";
-            my @found = glob($search_pattern);
-            
-            if (@found) {
-                my $src_file = $found[0]; # 最初のマッチを採用
-                
-                # 拡張子取得
-                my ($ext) = $src_file =~ /(\.[^.]+)$/;
-                $ext ||= ".jpg"; # fallback
-                
-                my $zip_path = "images/$tim-$n$ext";
-                
-                # パスをハッシュに登録 (Key: Absolute, Val: ZipRelative)
-                $img_ref->{$src_file} = $zip_path;
-                
-                $img_html .= qq|<div class="art-img"><a href="$zip_path" target="_blank"><img src="$zip_path" style="max-width:300px;"></a></div>|;
-            } else {
-                # ファイルが見つからない場合 (デバッグ表示)
-                $img_html .= qq|<div class="art-img"><span style="color:red; font-size:10px;">[ImgNotFound: $tim-$n]</span></div>|;
-            }
-        }
-    }
+    # 画像処理スキップ (テキストのみ)
+    my $img_html = ""; 
+    
+    # 以前の画像処理ロジックは削除
 
     my $class = ($type eq 'starter') ? "post starter" : "post reply";
 
@@ -215,7 +152,6 @@ sub process_archive_post {
         <div>$sub</div>
     </div>
     <div class="comment">
-        $img_html
         $com
     </div>
 </div>
