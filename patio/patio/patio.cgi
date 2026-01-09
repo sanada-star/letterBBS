@@ -106,7 +106,7 @@ sub download_archive {
     
     # index.html 追加
     my $string_member = $zip->addString( $html_content, 'index.html' );
-    $string_member->desiredCompressionMethod( COMPRESSION_DEFLATED );
+    $string_member->desiredCompressionMethod( Archive::Zip::COMPRESSION_DEFLATED );
 
     # 画像ファイル追加
     foreach my $img_path (keys %images_to_add) {
@@ -114,7 +114,7 @@ sub download_archive {
         if (-e $img_path) {
             my $file_member = $zip->addFile( $img_path, $zip_path );
             if ($file_member) {
-                $file_member->desiredCompressionMethod( COMPRESSION_DEFLATED );
+                $file_member->desiredCompressionMethod( Archive::Zip::COMPRESSION_DEFLATED );
             }
         }
     }
@@ -129,7 +129,7 @@ sub download_archive {
     print "Content-Disposition: attachment; filename=thread_$no.zip\n\n";
 
     binmode STDOUT;
-    $zip->writeToFileHandle( \*STDOUT ) == AZ_OK 
+    $zip->writeToFileHandle( \*STDOUT ) == Archive::Zip::AZ_OK 
         or error("Write to STDOUT failed");
     
     exit;
