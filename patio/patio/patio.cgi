@@ -55,6 +55,7 @@ if ($in{mode} eq 'manual') { manual_page(); }
 if ($in{mode} eq 'find_owner') { find_owner(); }
 if ($in{mode} eq 'check_env') { check_env_func(); } # Debug mode
 if ($in{mode} eq 'archive') { download_archive(); } # Log Archive
+if ($in{mode} eq 'api_list') { api_list(); } # API for Notifications
 bbs_list();
 
 #-----------------------------------------------------------

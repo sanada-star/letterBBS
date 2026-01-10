@@ -634,3 +634,205 @@ async function sendAllDeskItems() {
     panel.querySelector('.desk-content').innerHTML = originalContent;
     refreshDeskPanel();
 }
+// ========================================
+// Resident Notification System (Phase 8)
+// ========================================
+const NOTIFY_KEY_NAME = 'letterBBS_notify_name';
+const NOTIFY_KEY_STATE = 'letterBBS_notify_state'; // ON/OFF
+const NOTIFY_KEY_LAST = 'letterBBS_notify_last'; // Last Snapshot
+
+const NotificationSystem = {
+    intervalId: null,
+    monitorName: '',
+    isEnabled: false,
+
+    init: function () {
+        // Load Settings
+        this.monitorName = localStorage.getItem(NOTIFY_KEY_NAME) || '';
+        this.isEnabled = (localStorage.getItem(NOTIFY_KEY_STATE) === 'true');
+
+        // Create UI
+        this.createUI();
+
+        // Start if enabled
+        if (this.isEnabled && this.monitorName) {
+            this.start();
+        }
+    },
+
+    createUI: function () {
+        // Add Bell Icon to Header or Menu
+        // Assuming #menu exists, append as last item or create a floating trigger
+        const menu = document.querySelector('#menu');
+        if (menu) {
+            const btn = document.createElement('a');
+            btn.href = "javascript:void(0)";
+            btn.className = "menu-notify";
+            btn.innerHTML = `<span id="notify-icon">${this.isEnabled ? '🔔' : '🔕'}</span> 通知設定`;
+            btn.onclick = () => this.openSettings();
+            menu.appendChild(btn);
+        }
+    },
+
+    openSettings: function () {
+        const currentName = this.monitorName;
+        const currentState = this.isEnabled;
+
+        const newName = prompt("【通知設定】\n監視する「あなたの名前」を入力してください。\n(この名前のスレッドに動きがあると通知されます)", currentName);
+
+        if (newName === null) return; // Cancel
+
+        let newState = currentState;
+        if (newName) {
+            newState = confirm("通知機能をONにしますか？\n(OK=ON / キャンセル=OFF)");
+        } else {
+            alert("名前が設定されていないため、通知機能はOFFになります。");
+            newState = false;
+        }
+
+        // Save
+        this.monitorName = newName.trim();
+        this.isEnabled = newState;
+        localStorage.setItem(NOTIFY_KEY_NAME, this.monitorName);
+        localStorage.setItem(NOTIFY_KEY_STATE, this.isEnabled);
+
+        // Update UI
+        document.getElementById('notify-icon').innerText = this.isEnabled ? '🔔' : '🔕';
+
+        // Toggle Process
+        if (this.isEnabled && this.monitorName) {
+            this.requestPermission();
+            this.start();
+            alert("通知の監視を開始しました。\nこのタブを開いたままにしておいてください。\n(15秒ごとに更新チェックを行います)");
+        } else {
+            this.stop();
+            alert("監視を停止しました。");
+        }
+    },
+
+    requestPermission: function () {
+        if (!("Notification" in window)) {
+            alert("このブラウザはデスクトップ通知に対応していません。");
+            return;
+        }
+        if (Notification.permission !== "denied") {
+            Notification.requestPermission();
+        }
+    },
+
+    start: function () {
+        if (this.intervalId) clearInterval(this.intervalId);
+        // First check immediately
+        this.checkValues();
+        // Loop every 15s
+        this.intervalId = setInterval(() => this.checkValues(), 15000);
+        console.log("Notification Monitor Started");
+    },
+
+    stop: function () {
+        if (this.intervalId) clearInterval(this.intervalId);
+        this.intervalId = null;
+        console.log("Notification Monitor Stopped");
+    },
+
+    checkValues: async function () {
+        if (!this.monitorName) return;
+
+        try {
+            const res = await fetch('./patio.cgi?mode=api_list&t=' + Date.now()); // Prevent cache
+            const list = await res.json();
+
+            // Get previous snapshot
+            const lastSnapshot = JSON.parse(localStorage.getItem(NOTIFY_KEY_LAST) || '{}');
+            const newSnapshot = {};
+            let hasUpdate = false;
+
+            // 1. Find My Thread
+            const myThreads = list.filter(item => item.name === this.monitorName);
+
+            myThreads.forEach(thread => {
+                newSnapshot[thread.id] = thread.res;
+
+                const oldRes = lastSnapshot[thread.id];
+
+                // Compare
+                if (oldRes !== undefined && thread.res > oldRes) {
+                    // NEW POST DETECTED!
+                    this.triggerNotify(thread.sub, thread.last_name);
+                    hasUpdate = true;
+                }
+            });
+
+            // Save new snapshot (only for monitored threads to save space/logic)
+            // But wait, if I want to detect GLOBAL updates (not just mine), I need to track everything?
+            // User requirement: "My name set... check all status... popup".
+            // Implementation: Only notify for MY threads for now.
+
+            // What if a new thread is created? Maybe out of scope unless it matches my name (unlikely).
+
+            // To ensure we don't notify on first run, we check if lastSnapshot was empty.
+            // If empty, we just save current state.
+            if (Object.keys(lastSnapshot).length === 0) {
+                // First run, just save
+            }
+
+            // Always update snapshot for monitored threads
+            // Merging with existing snapshot to keep other threads tracked if needed? No, simplier is better.
+            // But if multiple threads exist with same name?
+
+            // Save ALL tracked threads state
+            localStorage.setItem(NOTIFY_KEY_LAST, JSON.stringify(newSnapshot));
+
+        } catch (e) {
+            console.error("Monitor Check Failed", e);
+        }
+    },
+
+    triggerNotify: function (threadTitle, lastAuthor) {
+        const msg = `${lastAuthor} さんからのお手紙が届きました！\n件名: ${threadTitle}`;
+
+        // 1. Browser Notification
+        if (Notification.permission === "granted") {
+            new Notification("LetterBBS: 新着通知", {
+                body: msg,
+                icon: "./cmn/icon/fld_bell.gif" // Assuming this icon exists or generic
+            });
+        }
+
+        // 2. In-page Popup (Toast)
+        this.showToast(msg);
+
+        // 3. Sound (Optional - very subtle beep)
+        // const audio = new Audio('./cmn/pop.mp3'); audio.play().catch(e=>{});
+    },
+
+    showToast: function (msg) {
+        let toast = document.getElementById('notify-toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'notify-toast';
+            toast.style.cssText = `
+                position: fixed; top: 20px; right: 20px;
+                background: rgba(50, 50, 50, 0.9); color: #fff;
+                padding: 15px 20px; border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 9999; font-size: 0.9rem;
+                transform: translateX(120%); transition: transform 0.3s ease;
+                max-width: 300px;
+            `;
+            document.body.appendChild(toast);
+        }
+        toast.innerText = msg;
+        toast.style.transform = 'translateX(0)';
+
+        // Auto hide
+        setTimeout(() => {
+            toast.style.transform = 'translateX(120%)';
+        }, 5000);
+    }
+};
+
+// Start
+document.addEventListener('DOMContentLoaded', function () {
+    NotificationSystem.init();
+});
