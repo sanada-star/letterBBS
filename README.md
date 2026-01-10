@@ -1,7 +1,9 @@
-# LetterBBS 
+# LetterBBS (Modified Edition)
 
 ## 概要
 **LetterBBS** は、KENT WEB様で公開されている「Patio」をベースに、PBC（Play by Chat）やPBW（Play by Web）などの「キャラクター交流」向けに大幅な改造を施したCGIスクリプトです。
+
+往復書簡形式のロールプレイ、1対1の秘匿会話、そして思い出の保存に特化しています。
 
 ## ⚠️ 配布・利用規定 (Distribution & License)
 本プログラムは **KENT WEB** 様の「Patio」を改造したものです。
@@ -53,3 +55,109 @@
 ---
 Base Script: Patio v5.12 (c) KENT WEB
 Modified by: Sanada (Advanced Agentic AI Team)
+
+## プログラムの設定及び設置
+
+全体のディレクトリ構成とファイル位置の設置例は以下のとおりです。（かっこ内はパーミッションの設定値）
+
+### ディレクトリ構成例
+
+```text
+public_html (ホームディレクトリ)
+      |
+      +-- patio / patio.cgi     [705] ... 掲示板本体
+            |     admin.cgi     [705] ... 管理画面
+            |     regist.cgi    [705]
+            |     captcha.cgi   [705]
+            |     check.cgi     [705] ... チェック後はファイル削除
+            |     init.cgi      [604]
+            |
+            +-- lib / *.*
+            |
+            +-- data / index1.log  [606]
+            |    |     index2.log  [606]
+            |    |     memdata.cgi [606]
+            |    |     pass.dat    [606]
+            |    |
+            |    +-- log [707] /
+            |    +-- ses [707] /
+            |    +-- pwd [707] /
+            |
+            +-- upl [707] /
+            |
+            +-- cmn / *.*
+```
+
+### 設定ファイルの修正 (`init.cgi`)
+
+`init.cgi` をエディタで開いて以下の箇所を環境に合わせて修正してください。
+
+```perl
+$cf{authkey} = 0;
+# （会員アクセス制限を行う場合には 1 とします）
+
+$cf{authtime} = 60;
+# （会員アクセス制限を行う場合のログイン後の有効時間を分単位で指定します）
+
+$cf{image_upl} = 1;
+# （親記事の画像アップを許可する場合は「1」を、許可しない場合は「0」とします）
+
+$cf{title} = "掲示板";
+# （掲示板のタイトルを記述します）
+
+$cf{i_max} = 100;
+# （現行ログとして保持するスレッド数の最大値です。これを超えると、古いスレッドから過去ログへ移行します）
+
+$cf{p_max} = 300;
+# （過去ログとして保持するスレッド数の最大値です。これを超えると、古い順に自動削除します）
+
+$cf{pg_max} = 10;
+# （スレッド内の返信記事で、1ページ当りに表示される記事数です）
+
+$cf{m_max} = 100;
+# （１スレッド当りの最大返信数です。これを超えるとスレッドは終了し、過去ログへ移行します）
+
+$cf{pgmax_now} = 10;
+# （初期メニューでのスレッド最大表示数です）
+
+$cf{pgmax_past} = 20;
+# （過去ログメニューでのスレッド最大表示数です）
+
+$cf{upldir} = './upl';
+$cf{uplurl} = './upl';
+# （画像ディレクトリのパスを、上から順にサーバパス、URLパスの順で指定します。URLパスは http://から記述してもかまいません）
+
+$cf{max_failpass} = 5;
+# （管理パスワードの最大間違い制限を指定します。この回数以上になるとログインがロックされます）
+```
+
+### CGIファイルのPerlパス修正
+
+以下のファイルをエディタで開き、1行目のPerlパスをプロバイダの指定に合わせて修正してください。
+
+- `patio.cgi`
+- `regist.cgi`
+- `check.cgi`
+- `captcha.cgi`
+- `admin.cgi`
+
+```perl
+#!/usr/local/bin/perl
+# （例：プロバイダで定められたPerlへのパス）
+```
+
+### パーミッション設定
+
+ファイルを修正後、所定のディレクトリへFTP転送し、以下の通りアクセス権（パーミッション）を設定してください。
+
+| ファイル名 | 一般サーバ | suEXEC / CGIWrap | 転送モード |
+| :--- | :---: | :---: | :---: |
+| patio.cgi<br>regist.cgi<br>check.cgi<br>admin.cgi<br>captcha.cgi | 755 or 705 | 701 or 700 | アスキー |
+| index1.log<br>index2.log<br>memdata.cgi | 666 or 606 | 600 | アスキー |
+| init.cgi | 644 or 604 | 600 | アスキー |
+| uplディレクトリ | 777 or 707 | 755 or 705 | - |
+| data/logディレクトリ<br>data/sesディレクトリ | 777 or 707 | 701 or 700 | - |
+| lib/*.*<br>style.css<br>tmpl/*.html | - | - | アスキー |
+| icon/*.gif<br>lib/bin/*.png<br>lib/bin/*.ttf | - | - | バイナリー |
+
+※ 設置作業完了後、「チェックモード」(`check.cgi`) で動作チェックを行ってください。動作チェック後は、セキュリティのため `check.cgi` を削除してください。
