@@ -637,9 +637,13 @@ async function sendAllDeskItems() {
 // ========================================
 // Resident Notification System (Phase 8)
 // ========================================
+// ========================================
+// Resident Notification System (Phase 8 - Task Style)
+// ========================================
 const NOTIFY_KEY_NAME = 'letterBBS_notify_name';
 const NOTIFY_KEY_STATE = 'letterBBS_notify_state'; // ON/OFF
-const NOTIFY_KEY_LAST = 'letterBBS_notify_last'; // Last Snapshot
+const NOTIFY_KEY_LAST = 'letterBBS_notify_last'; // Last Snapshot {thID: count}
+const NOTIFY_KEY_UNREAD = 'letterBBS_notify_unread'; // Unread Queue [{sub, author, id...}]
 
 const NotificationSystem = {
     intervalId: null,
@@ -654,6 +658,9 @@ const NotificationSystem = {
         // Create UI
         this.createUI();
 
+        // Check for unread items on load and show them
+        this.checkUnreadOnLoad();
+
         // Start if enabled
         if (this.isEnabled && this.monitorName) {
             this.start();
@@ -662,7 +669,6 @@ const NotificationSystem = {
 
     createUI: function () {
         // Add Bell Icon to Header or Menu
-        // Assuming #menu exists, append as last item or create a floating trigger
         const menu = document.querySelector('#menu');
         if (menu) {
             const btn = document.createElement('a');
@@ -697,16 +703,17 @@ const NotificationSystem = {
         localStorage.setItem(NOTIFY_KEY_STATE, this.isEnabled);
 
         // Update UI
-        document.getElementById('notify-icon').innerText = this.isEnabled ? '🔔' : '🔕';
+        const icon = document.getElementById('notify-icon');
+        if (icon) icon.innerText = this.isEnabled ? '🔔' : '🔕';
 
         // Toggle Process
         if (this.isEnabled && this.monitorName) {
             this.requestPermission();
             this.start();
-            alert("通知の監視を開始しました。\nこのタブを開いたままにしておいてください。\n(15秒ごとに更新チェックを行います)");
+            alert("通知の監視を開始しました。\nこのタブを開いたままにしておいてください。\n(10秒ごとに更新チェックを行います)");
         } else {
             this.stop();
-            alert("監視を停止しました。");
+            alert("監視を停止しました。\n(未読タスクは残ります)");
         }
     },
 
@@ -724,9 +731,9 @@ const NotificationSystem = {
         if (this.intervalId) clearInterval(this.intervalId);
         // First check immediately
         this.checkValues();
-        // Loop every 15s
-        this.intervalId = setInterval(() => this.checkValues(), 15000);
-        console.log("Notification Monitor Started");
+        // Loop every 10s
+        this.intervalId = setInterval(() => this.checkValues(), 10000);
+        console.log("Notification Monitor Started (10s)");
     },
 
     stop: function () {
@@ -738,49 +745,37 @@ const NotificationSystem = {
     checkValues: async function () {
         if (!this.monitorName) return;
 
+        // Visual Heartbeat
+        const icon = document.getElementById('notify-icon');
+        if (icon) {
+            icon.style.transition = 'transform 0.5s';
+            icon.style.transform = 'rotate(360deg)';
+            setTimeout(() => { icon.style.transform = 'rotate(0deg)'; }, 500);
+        }
+
         try {
-            const res = await fetch('./patio.cgi?mode=api_list&t=' + Date.now()); // Prevent cache
+            const res = await fetch('./patio.cgi?mode=api_list&t=' + Date.now(), { cache: "no-store" });
             const list = await res.json();
 
-            // Get previous snapshot
             const lastSnapshot = JSON.parse(localStorage.getItem(NOTIFY_KEY_LAST) || '{}');
             const newSnapshot = {};
-            let hasUpdate = false;
 
-            // 1. Find My Thread
+            // 1. Find My Thread & Check Updates
             const myThreads = list.filter(item => item.name === this.monitorName);
 
             myThreads.forEach(thread => {
-                newSnapshot[thread.id] = thread.res;
+                const currentRes = parseInt(thread.res, 10);
+                newSnapshot[thread.id] = currentRes;
 
                 const oldRes = lastSnapshot[thread.id];
 
                 // Compare
-                if (oldRes !== undefined && thread.res > oldRes) {
+                if (oldRes !== undefined && currentRes > parseInt(oldRes, 10)) {
                     // NEW POST DETECTED!
-                    this.triggerNotify(thread.sub, thread.last_name);
-                    hasUpdate = true;
+                    this.addUnread(thread.sub, thread.last_name, thread.id);
                 }
             });
 
-            // Save new snapshot (only for monitored threads to save space/logic)
-            // But wait, if I want to detect GLOBAL updates (not just mine), I need to track everything?
-            // User requirement: "My name set... check all status... popup".
-            // Implementation: Only notify for MY threads for now.
-
-            // What if a new thread is created? Maybe out of scope unless it matches my name (unlikely).
-
-            // To ensure we don't notify on first run, we check if lastSnapshot was empty.
-            // If empty, we just save current state.
-            if (Object.keys(lastSnapshot).length === 0) {
-                // First run, just save
-            }
-
-            // Always update snapshot for monitored threads
-            // Merging with existing snapshot to keep other threads tracked if needed? No, simplier is better.
-            // But if multiple threads exist with same name?
-
-            // Save ALL tracked threads state
             localStorage.setItem(NOTIFY_KEY_LAST, JSON.stringify(newSnapshot));
 
         } catch (e) {
@@ -788,47 +783,127 @@ const NotificationSystem = {
         }
     },
 
-    triggerNotify: function (threadTitle, lastAuthor) {
-        const msg = `${lastAuthor} さんからのお手紙が届きました！\n件名: ${threadTitle}`;
+    // Add unread item to queue and notify
+    addUnread: function (sub, author, id) {
+        let unread = JSON.parse(localStorage.getItem(NOTIFY_KEY_UNREAD) || '[]');
 
-        // 1. Browser Notification
-        if (Notification.permission === "granted") {
-            new Notification("LetterBBS: 新着通知", {
-                body: msg,
-                icon: "./cmn/icon/fld_bell.gif" // Assuming this icon exists or generic
-            });
+        // Check duplication (Prevent spamming same event)
+        // Ideally we track message ID, but here we only have thread count.
+        // If "Last Author" changes or we just assume every trigger is new?
+        // Since checkValues runs every 10s, it only triggers ONCE when count changes.
+        // So duplication check is roughly checking if we already have this thread in unread queue?
+        // User wants "Todo List". If I have 2 unread messages in same thread, is it 1 task or 2?
+        // Usually 1 task: "Reply to Thread X".
+
+        // Update or Push
+        const idx = unread.findIndex(u => u.id === id);
+        const newItem = {
+            id: id,
+            sub: sub,
+            author: author,
+            timestamp: Date.now()
+        };
+
+        if (idx >= 0) {
+            unread[idx] = newItem; // Update existing task (e.g. newer reply)
+        } else {
+            unread.push(newItem);
         }
 
-        // 2. In-page Popup (Toast)
-        this.showToast(msg);
+        localStorage.setItem(NOTIFY_KEY_UNREAD, JSON.stringify(unread));
 
-        // 3. Sound (Optional - very subtle beep)
-        // const audio = new Audio('./cmn/pop.mp3'); audio.play().catch(e=>{});
+        // Trigger generic notification
+        this.triggerNotify(sub, author);
+
+        // Update Toast UI
+        this.updateToastUI();
     },
 
-    showToast: function (msg) {
+    triggerNotify: function (threadTitle, lastAuthor) {
+        const msg = `${lastAuthor} さんからのお手紙が届きました！\n件名: ${threadTitle}`;
+        const tag = "letterbbs-" + Date.now();
+
+        // 1. Browser Notification (Transient)
+        if (Notification.permission === "granted") {
+            try {
+                new Notification("LetterBBS: 新着あり", {
+                    body: msg,
+                    icon: "./cmn/icon/fld_bell.gif",
+                    tag: tag
+                });
+            } catch (e) { }
+        }
+    },
+
+    // Check localStorage on load
+    checkUnreadOnLoad: function () {
+        this.updateToastUI();
+    },
+
+    // Clear specific item
+    clearUnread: function (id) {
+        let unread = JSON.parse(localStorage.getItem(NOTIFY_KEY_UNREAD) || '[]');
+        unread = unread.filter(u => u.id !== id);
+        localStorage.setItem(NOTIFY_KEY_UNREAD, JSON.stringify(unread));
+        this.updateToastUI();
+    },
+
+    // Show persistent Toast
+    updateToastUI: function () {
+        let unread = JSON.parse(localStorage.getItem(NOTIFY_KEY_UNREAD) || '[]');
         let toast = document.getElementById('notify-toast');
+
+        if (unread.length === 0) {
+            if (toast) toast.style.transform = 'translateX(120%)';
+            return;
+        }
+
         if (!toast) {
             toast = document.createElement('div');
             toast.id = 'notify-toast';
+            // Styling for "Todo List" mode
             toast.style.cssText = `
                 position: fixed; top: 20px; right: 20px;
-                background: rgba(50, 50, 50, 0.9); color: #fff;
-                padding: 15px 20px; border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                background: rgba(40, 44, 52, 0.95); color: #fff;
+                padding: 0; border-radius: 8px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.4);
                 z-index: 9999; font-size: 0.9rem;
                 transform: translateX(120%); transition: transform 0.3s ease;
-                max-width: 300px;
+                min-width: 250px; max-width: 320px;
+                overflow: hidden;
             `;
             document.body.appendChild(toast);
         }
-        toast.innerText = msg;
-        toast.style.transform = 'translateX(0)';
 
-        // Auto hide
+        // Header
+        let html = `
+            <div style="background:#ff4757; padding:10px 15px; font-weight:bold; display:flex; justify-content:space-between; align-items:center;">
+                <span>📮 未読のお手紙 (${unread.length})</span>
+                <span style="font-size:0.8em; cursor:pointer;" onclick="document.getElementById('notify-toast').style.transform='translateX(120%)'">▼</span>
+            </div>
+            <div style="padding:10px; max-height:300px; overflow-y:auto;">
+        `;
+
+        // List Items
+        unread.forEach(u => {
+            html += `
+                <div style="background:rgba(255,255,255,0.1); margin-bottom:8px; padding:10px; border-radius:4px; border-left:3px solid #ff4757; position:relative;">
+                    <div style="font-size:0.85em; color:#ccc;">${new Date(u.timestamp).toLocaleTimeString()} / From: ${u.author}</div>
+                    <div style="font-weight:bold; margin:3px 0;">${u.sub}</div>
+                    <a href="./patio.cgi?read=${u.id}&ukey=0" target="_blank" style="color:#61dafb; font-size:0.9em; text-decoration:underline;">返信しに行く</a>
+                    <button onclick="NotificationSystem.clearUnread('${u.id}')" style="display:block; width:100%; margin-top:5px; border:none; background:#777; color:#fff; padding:4px; border-radius:2px; cursor:pointer;">× 完了（通知を消す）</button>
+                </div>
+            `;
+        });
+
+        html += `</div>`;
+        toast.innerHTML = html;
+
+        // Show
         setTimeout(() => {
-            toast.style.transform = 'translateX(120%)';
-        }, 5000);
+            toast.style.transform = 'translateX(0)';
+        }, 100);
+        // NO Auto-hide here
     }
 };
 
