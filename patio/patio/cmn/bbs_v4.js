@@ -772,7 +772,9 @@ const NotificationSystem = {
                 // Compare
                 if (oldRes !== undefined && currentRes > parseInt(oldRes, 10)) {
                     // NEW POST DETECTED!
-                    this.addUnread(thread.sub, thread.last_name, thread.id);
+                    const oldResInt = parseInt(oldRes, 10);
+                    const diff = currentRes - oldResInt;
+                    this.addUnread(thread.sub, thread.last_name, thread.id, diff);
                 }
             });
 
@@ -784,43 +786,41 @@ const NotificationSystem = {
     },
 
     // Add unread item to queue and notify
-    addUnread: function (sub, author, id) {
+    addUnread: function (sub, author, id, diff) {
         let unread = JSON.parse(localStorage.getItem(NOTIFY_KEY_UNREAD) || '[]');
 
-        // Check duplication (Prevent spamming same event)
-        // Ideally we track message ID, but here we only have thread count.
-        // If "Last Author" changes or we just assume every trigger is new?
-        // Since checkValues runs every 10s, it only triggers ONCE when count changes.
-        // So duplication check is roughly checking if we already have this thread in unread queue?
-        // User wants "Todo List". If I have 2 unread messages in same thread, is it 1 task or 2?
-        // Usually 1 task: "Reply to Thread X".
+        // Use diff (new replies count) or default to 1
+        const newCount = diff || 1;
 
-        // Update or Push
         const idx = unread.findIndex(u => u.id === id);
-        const newItem = {
-            id: id,
-            sub: sub,
-            author: author,
-            timestamp: Date.now()
-        };
 
         if (idx >= 0) {
-            unread[idx] = newItem; // Update existing task (e.g. newer reply)
+            // Update existing task
+            unread[idx].timestamp = Date.now();
+            unread[idx].author = author; // Update latest author
+            unread[idx].count = (unread[idx].count || 0) + newCount; // Increment count
         } else {
-            unread.push(newItem);
+            // New task
+            unread.push({
+                id: id,
+                sub: sub,
+                author: author,
+                timestamp: Date.now(),
+                count: newCount
+            });
         }
 
         localStorage.setItem(NOTIFY_KEY_UNREAD, JSON.stringify(unread));
 
         // Trigger generic notification
-        this.triggerNotify(sub, author);
+        this.triggerNotify(sub, author, newCount);
 
         // Update Toast UI
         this.updateToastUI();
     },
 
-    triggerNotify: function (threadTitle, lastAuthor) {
-        const msg = `${lastAuthor} さんからのお手紙が届きました！\n件名: ${threadTitle}`;
+    triggerNotify: function (threadTitle, lastAuthor, count) {
+        const msg = `${lastAuthor} さんからのお手紙が届きました！` + (count > 1 ? ` (+${count}件)` : '') + `\n件名: ${threadTitle}`;
         const tag = "letterbbs-" + Date.now();
 
         // 1. Browser Notification (Transient)
@@ -858,6 +858,9 @@ const NotificationSystem = {
             return;
         }
 
+        // Calculate total new messages
+        const totalCount = unread.reduce((sum, item) => sum + (item.count || 1), 0);
+
         if (!toast) {
             toast = document.createElement('div');
             toast.id = 'notify-toast';
@@ -878,7 +881,7 @@ const NotificationSystem = {
         // Header
         let html = `
             <div style="background:#ff4757; padding:10px 15px; font-weight:bold; display:flex; justify-content:space-between; align-items:center;">
-                <span>📮 未読のお手紙 (${unread.length})</span>
+                <span>📮 未読のお手紙 (${totalCount})</span>
                 <span style="font-size:0.8em; cursor:pointer;" onclick="document.getElementById('notify-toast').style.transform='translateX(120%)'">▼</span>
             </div>
             <div style="padding:10px; max-height:300px; overflow-y:auto;">
@@ -886,10 +889,12 @@ const NotificationSystem = {
 
         // List Items
         unread.forEach(u => {
+            const countLabel = (u.count && u.count > 1) ? `<span style="background:#ff9f43; color:#fff; padding:1px 5px; border-radius:4px; font-size:0.8em; margin-left:5px;">+${u.count}</span>` : '';
+
             html += `
                 <div style="background:rgba(255,255,255,0.1); margin-bottom:8px; padding:10px; border-radius:4px; border-left:3px solid #ff4757; position:relative;">
                     <div style="font-size:0.85em; color:#ccc;">${new Date(u.timestamp).toLocaleTimeString()} / From: ${u.author}</div>
-                    <div style="font-weight:bold; margin:3px 0;">${u.sub}</div>
+                    <div style="font-weight:bold; margin:3px 0;">${u.sub}${countLabel}</div>
                     <a href="./patio.cgi?read=${u.id}&ukey=0" target="_blank" style="color:#61dafb; font-size:0.9em; text-decoration:underline;">返信しに行く</a>
                     <button onclick="NotificationSystem.clearUnread('${u.id}')" style="display:block; width:100%; margin-top:5px; border:none; background:#777; color:#fff; padding:4px; border-radius:2px; cursor:pointer;">× 完了（通知を消す）</button>
                 </div>
