@@ -62,6 +62,37 @@ bbs_list();
 #  ログアーカイブ (Memory Box)
 #-----------------------------------------------------------
 #-----------------------------------------------------------
+#  API: Thread List (JSON)
+#-----------------------------------------------------------
+sub api_list {
+    print "Content-Type: application/json; charset=utf-8\n\n";
+    
+    open(IN, "$cf{datadir}/index1.log") or do {
+        print "[]";
+        exit;
+    };
+    
+    my @json_items = ();
+    
+    while (<IN>) {
+        chomp;
+        my ($num, $sub, $res, $nam, $upd, $last) = split(/<>/, $_);
+        
+        # Escape for JSON
+        $sub =~ s/"/\\"/g;
+        $nam =~ s/"/\\"/g;
+        $last =~ s/"/\\"/g;
+        
+        # Build JSON Object String
+        push(@json_items, qq|{"id":"$num","sub":"$sub","res":$res,"name":"$nam","last_name":"$last","upd":"$upd"}|);
+    }
+    close(IN);
+    
+    print "[" . join(',', @json_items) . "]";
+    exit;
+}
+
+#-----------------------------------------------------------
 #  ログアーカイブ (Memory Box)
 #-----------------------------------------------------------
 sub download_archive {
