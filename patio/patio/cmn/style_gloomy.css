@@ -1229,21 +1229,7 @@ body.mini-mode .correspondesk-panel {
     box-shadow: 0 0 10px rgba(207, 102, 121, 0.2);
 }
 
-.timeline-item.timeline-current::after {
-    content: "YOU ARE HERE!";
-    position: absolute;
-    right: -10px;
-    top: -15px;
-    background: var(--color-primary);
-    color: #000;
-    font-size: 0.7rem;
-    padding: 2px 8px;
-    border-radius: 12px;
-    transform: rotate(5deg);
-    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-    font-weight: bold;
-    font-family: var(--font-heading);
-}
+
 
 .timeline-loader {
     text-align: center;
