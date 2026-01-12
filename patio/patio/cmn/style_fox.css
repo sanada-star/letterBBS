@@ -334,6 +334,14 @@ a:hover {
     line-height: 1.6;
 }
 
+.auth-target-info {
+    background: #121212;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+    color: #e0e0e0;
+}
+
 .captcha-container {
     display: flex;
     align-items: center;
