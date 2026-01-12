@@ -817,3 +817,51 @@ a:hover {
 	flex-wrap: wrap;
 	gap: 10px;
 }
+
+/* ========================================
+   Notification Toast Override for Simple Theme
+   (Overwrites inline styles from bbs_v4.js)
+   ======================================== */
+#notify-toast {
+	background: #ffffff !important;
+	color: #333 !important;
+	box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15) !important;
+	border: 1px solid #ccc !important;
+}
+
+/* Header Override */
+#notify-toast>div:first-child {
+	background: #f0f0f0 !important;
+	color: #333 !important;
+	border-bottom: 1px solid #ddd !important;
+}
+
+/* List Item Override */
+#notify-toast>div:last-child>div {
+	background: #fdfdfd !important;
+	border: 1px solid #eee !important;
+	border-left: 3px solid var(--color-primary) !important;
+	/* Blue accent */
+	color: #333 !important;
+}
+
+/* Meta info (Date/Author) Override */
+#notify-toast>div:last-child>div>div:first-child {
+	color: #777 !important;
+}
+
+/* Link Override */
+#notify-toast a {
+	color: var(--color-primary) !important;
+}
+
+/* Button Override */
+#notify-toast button {
+	background: #f0f0f0 !important;
+	color: #555 !important;
+	border: 1px solid #ccc !important;
+}
+
+#notify-toast button:hover {
+	background: #e0e0e0 !important;
+}
