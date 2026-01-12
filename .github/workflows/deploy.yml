@@ -25,7 +25,9 @@ jobs:
           FTP_USER: ${{ secrets.FTP_USERNAME }}
           FTP_PASS: ${{ secrets.FTP_PASSWORD }}
         run: |
-          lftp -c "open -u $FTP_USER,$FTP_PASS $FTP_SERVER; set ssl:verify-certificate no; mirror -R -v --parallel=2 ./patio/patio/ ./www/patio/; chmod 705 ./www/patio/*.cgi; chmod 707 ./www/patio/data; chmod 606 ./www/patio/data/*.log"
+          chmod 755 ./patio/patio/*.cgi
+          chmod 777 ./patio/patio/data
+          lftp -c "open -u $FTP_USER,$FTP_PASS $FTP_SERVER; set ssl:verify-certificate no; mirror -R -v -p --parallel=2 ./patio/patio/ ./www/patio/"
 
       # Deploy v3.1 (Fox)
       - name: Deploy Fox (v3.1-dev)
@@ -35,4 +37,6 @@ jobs:
           FTP_USER: ${{ secrets.FTP_USERNAME }}
           FTP_PASS: ${{ secrets.FTP_PASSWORD }}
         run: |
-          lftp -c "open -u $FTP_USER,$FTP_PASS $FTP_SERVER; set ssl:verify-certificate no; mirror -R -v --parallel=2 ./patio/patio/ ./www/fox/patio/; chmod 705 ./www/fox/patio/*.cgi; chmod 707 ./www/fox/patio/data; chmod 606 ./www/fox/patio/data/*.log"
+          chmod 755 ./patio/patio/*.cgi
+          chmod 777 ./patio/patio/data
+          lftp -c "open -u $FTP_USER,$FTP_PASS $FTP_SERVER; set ssl:verify-certificate no; mirror -R -v -p --parallel=2 ./patio/patio/ ./www/fox/patio/"
