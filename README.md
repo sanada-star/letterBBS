@@ -108,6 +108,10 @@
 ![デザイン：Simple](docs/images/screen_theme_simple.png)
 *Simple: ビジネスライクで読みやすい配色*
 
+### 使い方・マニュアル (Manual & Rules)
+![使い方・マニュアル](docs/images/screen_manual_rule.png)
+*「使い方」ページには、タイムラインや通知を正しく機能させるための重要なルール（名前の統一など）が記載されています。必ずご一読ください。*
+
 ## 📥 ダウンロード方法 (Download)
 
 GitHubに不慣れな方は、以下の手順でファイルを一括ダウンロードできます。
