@@ -99,6 +99,7 @@ a:hover {
 	color: #333;
 	font-size: 0.9rem;
 	font-weight: normal;
+	position: relative;
 }
 
 #menu a:hover {
@@ -805,4 +806,14 @@ a:hover {
 	padding: 8px;
 	margin: 5px 0;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Fix for Reply Header Alignment */
+.art-meta-flex {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 0.5rem;
+	flex-wrap: wrap;
+	gap: 10px;
 }
