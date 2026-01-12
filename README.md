@@ -40,6 +40,35 @@
 
 ---
 
+## 📸 スクリーンショット (Screenshots)
+
+### トップ画面 (Main Screen)
+![トップ画面](docs/images/screen_top.png)
+
+### 記事詳細・レス画面 (Thread View)
+![直接返信フォーム](docs/images/screen_floating_form.png)
+*タイムラインを見ながら返信できる「直接返信（ミニウィンドウ）」*
+
+### 文通デスク (Correspondesk)
+![デスクへの登録](docs/images/screen_desk_entry.png)
+*1. 返事を書きたい手紙を見つけたら「デスクに置く」ボタンをクリック*
+
+![タイムラインを見ながら執筆](docs/images/screen_desk_timeline.png)
+*2. 相手との会話ライン（タイムライン）を見ながら、じっくり返事を書くことができます*
+
+![デスクでの一括編集](docs/images/screen_desk_panel.png)
+*3. 画面下部にストックされた返信を一括で書いて、最後にまとめて送信！*
+
+### 通知機能 (Notifications)
+![通知設定：名前入力](docs/images/screen_notify_setup_name.png)
+*1. 画面右上の「通知設定」から監視したい名前（スレッド名）を入力*
+
+![通知設定：確認](docs/images/screen_notify_setup_confirm.png)
+*2. OKを押して監視をスタート*
+
+![通知：受信時](docs/images/screen_notify_popup.png)
+*3. 手紙が届くと、画面右上のトーストとOSの通知でお知らせします（ブラウザを閉じていてもOK！）*
+
 ## 主な機能 (v3.0)
 
 ### 1. 💌 往復書簡に特化したUI
