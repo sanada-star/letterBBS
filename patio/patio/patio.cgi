@@ -457,8 +457,8 @@ sub bbs_list {
 	} else {
 		$tmpl =~ s|<!-- auth -->.+?<!-- /auth -->||sg;
 	}
-	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/$cf{css_filename}?v=3.1_fox_fix_v2|g;
-	$tmpl =~ s|!bbs_js!|$cf{cmnurl}/bbs_v4.js?v=3.1_fox_fix_v2|g;
+	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/$cf{css_filename}?v=3.1_fox_contrast_fix|g;
+	$tmpl =~ s|!bbs_js!|$cf{cmnurl}/bbs_v4.js?v=3.1_fox_contrast_fix|g;
 	$tmpl =~ s/!([a-z]+_cgi)!/$cf{$1}/g;
 	$tmpl =~ s/!bbs_title!/$cf{bbs_title}/g;
 	$tmpl =~ s/!homepage!/$cf{homepage}/g;
@@ -577,8 +577,8 @@ sub read_log {
 	my $tmpl = join('',<IN>);
 	close(IN);
 	
-	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/$cf{css_filename}?v=3.1_fox_fix_v2|g;
-	$tmpl =~ s|!bbs_js!|$cf{cmnurl}/bbs_v4.js?v=3.1_fox_fix_v2|g;
+	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/$cf{css_filename}?v=3.1_fox_contrast_fix|g;
+	$tmpl =~ s|!bbs_js!|$cf{cmnurl}/bbs_v4.js?v=3.1_fox_contrast_fix|g;
 	$tmpl =~ s/!bbs_title!/$cf{bbs_title}/g;
 	$tmpl =~ s|<!-- past -->.+?<!-- /past -->||s if ($in{log} ne 'past');
 	
@@ -751,7 +751,7 @@ sub pwd_form {
 	
 	# 文字置換
 	$tmpl =~ s/!bbs_title!/$cf{bbs_title}/g;
-	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/$cf{css_filename}?v=3.1_fox_fix_v2|g;
+	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/$cf{css_filename}?v=3.1_fox_contrast_fix|g;
 	$tmpl =~ s/!sub!/$sub/g;
 	$tmpl =~ s/!name!/$name/g;
 	$tmpl =~ s/!art!/$in{edit}/g;
@@ -776,8 +776,8 @@ sub note_page {
 	close(IN);
 	
 	# 文字置換
-	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/$cf{css_filename}?v=3.1_fox_fix_v2|g;
-	$tmpl =~ s|!bbs_js!|$cf{cmnurl}/bbs_v4.js?v=3.1_fox_fix_v2|g;
+	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/$cf{css_filename}?v=3.1_fox_contrast_fix|g;
+	$tmpl =~ s|!bbs_js!|$cf{cmnurl}/bbs_v4.js?v=3.1_fox_contrast_fix|g;
 	$tmpl =~ s/!bbs_title!/$cf{bbs_title}/g;
 	$tmpl =~ s/!maxdata!/$cf{maxdata}バイト/g;
 	$tmpl =~ s/!max_w!/$cf{max_img_w}/g;
@@ -861,7 +861,7 @@ sub form_page {
 	}
 
 	$tmpl =~ s/!bbs_title!/$cf{bbs_title}/g;
-	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/$cf{css_filename}?v=3.1_fox_fix_v2|g;
+	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/$cf{css_filename}?v=3.1_fox_contrast_fix|g;
 	$tmpl =~ s|!bbs_js!|$cf{cmnurl}/bbs.js|g;
 	$tmpl =~ s/!([a-z]+_cgi)!/$cf{$1}/g;
 	$tmpl =~ s/!ico:(\w+\.\w+)!/<img src="$cf{cmnurl}\/$1" alt="$1" class="icon">/g;
@@ -912,7 +912,7 @@ sub find_page {
 	
 	# 文字置換
 	$tmpl =~ s/!bbs_title!/$cf{bbs_title}/g;
-	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/$cf{css_filename}?v=3.1_fox_fix_v2|g;
+	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/$cf{css_filename}?v=3.1_fox_contrast_fix|g;
 	$tmpl =~ s/!([a-z]+_cgi)!/$cf{$1}/g;
 	$tmpl =~ s/!ico:(\w+\.\w+)!/<img src="$cf{cmnurl}\/$1" alt="$1" class="icon">/g;
 	$tmpl =~ s/<!-- op_cond -->/$op_cond/g;
@@ -1214,7 +1214,7 @@ sub enter_form {
 	my $tmpl = join('',<IN>);
 	close(IN);
 	
-	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/style.css|g;
+	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/$cf{css_filename}|g;
 	$tmpl =~ s/!bbs_title!/$cf{bbs_title}/g;
 	
 	# 文字置換
@@ -1337,7 +1337,7 @@ sub manual_page {
 	my $tmpl = join('',<IN>);
 	close(IN);
 	
-	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/style.css|g;
+	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/$cf{css_filename}|g;
 	$tmpl =~ s/!([a-z_]+_cgi)!/$cf{$1}/g;
 	$tmpl =~ s/!bbs_title!/$cf{bbs_title}/g;
 	$tmpl =~ s/!tmpldir!/$cf{tmpldir}/g;

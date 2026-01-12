@@ -271,7 +271,7 @@ sub error {
 	
 	$tmpl =~ s/!error!/$err/g;
 	$tmpl =~ s/!bbs_title!/$cf{bbs_title}/g;
-	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/style.css|g;
+	$tmpl =~ s|!bbs_css!|$cf{cmnurl}/$cf{css_filename}|g;
 	
 	print "Content-type: text/html; charset=utf-8\n\n";
 	print $tmpl;

@@ -1248,4 +1248,64 @@ body.mini-mode .correspondesk-panel {
     font-size: 0.9rem;
     padding: 1rem;
 }
-.copyright { margin-top: 2.5em; text-align: center; font-family: Verdana, Arial, Helvetica; font-size: 10px; }
+
+.copyright {
+    margin-top: 2.5em;
+    text-align: center;
+    font-family: Verdana, Arial, Helvetica;
+    font-size: 10px;
+}
+/* ===================================
+   Contrast Enhancements (Readability)
+   =================================== */
+
+/* Placeholder text */
+::placeholder {
+    color: #888 !important;
+    opacity: 1;
+}
+
+/* Meta info (date, names) */
+.meta-date {
+    color: #a0a0a0 !important;
+}
+
+.thread-info-line {
+    color: #c0c0c0 !important;
+}
+
+.meta-last {
+    color: #d08080 !important;
+}
+
+/* Post meta in replies */
+.art-meta,
+.post.reply .comment {
+    color: #c8c8c8 !important;
+}
+
+/* Links in dark areas */
+a {
+    color: #dcd0c0;
+}
+
+/* Copyright text */
+.copyright {
+    color: #888;
+}
+
+/* Correspondence Desk panel */
+.desk-panel {
+    background: var(--color-card) !important;
+    color: var(--color-text) !important;
+    border-color: var(--color-border) !important;
+}
+
+.desk-panel .desk-item {
+    background: #181818 !important;
+    border-color: var(--color-border) !important;
+}
+
+.desk-panel .desk-item-header {
+    color: var(--color-primary) !important;
+}
