@@ -15,24 +15,24 @@
         }
 
         .manual-section {
-            background: #fff;
+            background: var(--color-card, #1a1a1a);
             padding: 2rem;
             margin-bottom: 2rem;
             border-radius: 8px;
-            border: 1px solid #ddd;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--color-border, #333);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .manual-section h2 {
-            color: #333;
+            color: var(--color-primary, #8a0000);
             margin-bottom: 1.5rem;
             font-size: 1.4rem;
-            border-bottom: 2px solid var(--color-primary);
+            border-bottom: 2px solid var(--color-primary, #8a0000);
             padding-bottom: 0.5rem;
         }
 
         .manual-section h3 {
-            color: #555;
+            color: var(--color-text, #e0e0e0);
             margin-top: 1.5rem;
             margin-bottom: 0.8rem;
             font-size: 1.1rem;
@@ -43,7 +43,7 @@
         .manual-section li {
             line-height: 1.8;
             margin-bottom: 0.8rem;
-            color: #444;
+            color: var(--color-text, #c0c0c0);
         }
 
         .manual-section ul {
@@ -51,34 +51,45 @@
             margin-bottom: 1rem;
         }
 
-        /* Important Rule Box */
+        /* Important Rule Box - High contrast for dark theme */
         .rule-box {
-            background: #fff0f5;
-            border: 2px solid #ffb6c1;
+            background: #2a0000;
+            border: 3px solid #ff4444;
             padding: 1.5rem;
             border-radius: 8px;
             margin-bottom: 2rem;
         }
 
         .rule-box h3 {
-            color: #cc0000;
+            color: #ff6666;
             margin-top: 0;
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            font-size: 1.3rem;
+        }
+
+        .rule-box p {
+            color: #ffcccc !important;
+            font-size: 1.05rem;
+        }
+
+        .rule-box strong {
+            color: #ffffff;
         }
 
         .highlight-box {
-            background: #e8f4fc;
-            border-left: 4px solid var(--color-primary);
+            background: #1a2a3a;
+            border-left: 4px solid var(--color-accent, #b8860b);
             padding: 1rem;
             margin: 1rem 0;
             border-radius: 4px;
+            color: #d0d0d0;
         }
 
         .step-number {
             display: inline-block;
-            background: var(--color-primary);
+            background: var(--color-primary, #8a0000);
             color: #fff;
             width: 1.6rem;
             height: 1.6rem;
@@ -94,6 +105,10 @@
             display: block;
             text-align: center;
             margin-top: 2rem;
+        }
+
+        .back-link a {
+            color: var(--color-accent, #b8860b);
         }
     </style>
 </head>
