@@ -101,6 +101,13 @@
 ![チャット風ビューア：個別2](docs/images/screen_memory_viewer_detail_2.png)
 *3. 相手ごとにフィルタリングして思い出を振り返ることができます*
 
+### デザインテーマ (Themes)
+![デザイン：Gloomy](docs/images/screen_theme_gloomy.png)
+*Gloomy: ダークで落ち着いた配色*
+
+![デザイン：Simple](docs/images/screen_theme_simple.png)
+*Simple: ビジネスライクで読みやすい配色*
+
 ## 📥 ダウンロード方法 (Download)
 
 GitHubに不慣れな方は、以下の手順でファイルを一括ダウンロードできます。
