@@ -25,6 +25,23 @@ my %in = parse_form($cgi);
 # 認証モード
 my %au = authent() if ($cf{authkey});
 
+# テーマ読み込み
+my $theme_file = "$cf{datadir}/theme.dat";
+my $css_file = "style.css"; # default
+if (open(THEME, "$theme_file")) {
+	my $saved_theme = <THEME>;
+	close(THEME);
+	chomp($saved_theme);
+	if ($saved_theme eq 'gloomy') {
+		$css_file = "style_gloomy.css";
+	} elsif ($saved_theme eq 'simple') {
+		$css_file = "style_simple.css";
+	} elsif ($saved_theme eq 'fox') {
+		$css_file = "style_fox.css";
+	}
+}
+$cf{css_filename} = $css_file;
+
 if ($in{mode} eq 'regist') { regist(); }
 if ($in{mode} eq 'edit') { edit_log(); }
 error("不明な処理です");
