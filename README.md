@@ -69,6 +69,17 @@
 ![通知：受信時](docs/images/screen_notify_popup.png)
 *3. 手紙が届くと、画面右上のトーストとOSの通知でお知らせします（ブラウザを閉じていてもOK！）*
 
+### メモリーボックス (Memory Box / Log Saving)
+![思い出を保存ボタン](docs/images/screen_memory_action.png)
+*1. 各スレッド上部の「思い出を保存」ボタンから、いつでもログをダウンロード*
+
+![チャット風ビューア：全体](docs/images/screen_memory_viewer_all.png)
+*2. ダウンロードしたHTMLは、ネットがなくても見れる専用ビューア付き！*
+
+![チャット風ビューア：個別](docs/images/screen_memory_viewer_detail_1.png)
+![チャット風ビューア：個別2](docs/images/screen_memory_viewer_detail_2.png)
+*3. 相手ごとにフィルタリングして思い出を振り返ることができます*
+
 ## 主な機能 (v3.0)
 
 ### 1. 💌 往復書簡に特化したUI
