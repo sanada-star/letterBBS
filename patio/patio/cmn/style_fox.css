@@ -502,7 +502,7 @@ a:hover {
 .res-sub {
     font-family: var(--font-heading);
     font-size: 1.1rem;
-    color: var(--color-primary);
+    color: #d4a020;
     border-bottom: 2px solid var(--color-secondary);
     padding-bottom: 5px;
     margin-bottom: 10px;
@@ -1255,6 +1255,7 @@ body.mini-mode .correspondesk-panel {
     font-family: Verdana, Arial, Helvetica;
     font-size: 10px;
 }
+
 /* ===================================
    Contrast Enhancements (Readability)
    =================================== */
