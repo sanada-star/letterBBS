@@ -1072,7 +1072,7 @@ sub footer {
 	my $copy = <<EOM;
 <p style="margin-top:2.5em;text-align:center;font-family:Verdana,Arial,Helvetica;font-size:10px;">
 	- <a href="https://www.kent-web.com/" target="_top">WEB PATIO</a> -<br>
-	<span style="font-size: smaller;">Edit by sanada letterBBS verr 1.0</span>
+	<span style="font-size: smaller;"><a href="https://github.com/sanada-star/letterBBS-modernized" target="_blank" style="text-decoration:none; color:inherit;">Edit by sanada letterBBS verr 3.0</a></span>
 </p>
 EOM
 
