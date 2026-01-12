@@ -651,6 +651,11 @@ const NotificationSystem = {
     isEnabled: false,
 
     init: function () {
+        // Mini Mode Check: Do not run in iframe/floating window
+        if (document.body.classList.contains('mini-mode') || window.location.search.includes('view=mini')) {
+            return;
+        }
+
         // Load Settings
         this.monitorName = localStorage.getItem(NOTIFY_KEY_NAME) || '';
         this.isEnabled = (localStorage.getItem(NOTIFY_KEY_STATE) === 'true');
